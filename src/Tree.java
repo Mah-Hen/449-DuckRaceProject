@@ -2,15 +2,15 @@ import java.util.HashSet;
 
 public class Tree<E> {
     private class Node<E>{
-        public E data;
-		public Node<E> lChild; // left
-		public Node<E> rChild; // right
+        public E state;
+		public Node<E> parent;
+        public int cost;
 
 
-		public Node(E data, Node<E> lChild, Node<E> rChild) {
-			this.data = data;
-			this.lChild = lChild; // left child
-			this.rChild = rChild; // right child
+		public Node(E state, Node<E> parent) {
+			this.state = state;
+			this.parent = parent;
+            this.cost = cost;
 		}
 
     }
@@ -22,10 +22,11 @@ public class Tree<E> {
 
     public Tree(E initial){
         this.numElt = 0;
-        this.stateNode = new Node<E>(initial, null, null);
+        this.stateNode = new Node<E>(initial, null);
         this.frontier = new LinkedQueue<>();
-        this.reach = new HashSet<>();
+        this.reach = new HashSet<>(); // lookup table
         this.frontier.enqueue(stateNode);
+        this.reach.add(stateNode);
     }
 
     public void add(E data, String directions) {
@@ -35,7 +36,7 @@ public class Tree<E> {
 	}
 
 
-	private Node<E> addRecursive(E data, String directions, Node<E> current) {
+	private Node<E> addRecursive(E data, Node<E> current) {
 		// Recursive method to add nodes to BTree
 		if(directions.equals("")) { // base case, if empty
 			return new Node<E>(data, null, null);
@@ -72,22 +73,23 @@ public class Tree<E> {
             return current;
         }
         while(!(this.frontier.isEmpty())){
-        E currentElement = (E) frontier.dequeue();}
+            E currentElement = (E) frontier.dequeue();
+            for(Node<E> child : this.expand){
+                E s = child.data;
+                if(s.equals(goal)){ // if state matches goal
+                    return null; // child
+                }
+                else{
+                    this.frontier.enqueue(child);
+
+                }
+            }
+        }
         
-        else if(current.lChild == null){ // if not, then check the left child to see if 
-            return null; // placeholder for now
-        }
-        else{
-            this.frontier.enqueue(current.lChild);
-            if(current.rChild == null){
-                return null; // placeholder for now
-            }
-            else{
-                this.frontier.enqueue(current.rChild);
-                return null;
-            }
-        }
-        */
+       
+
+
+       
     }
 
     

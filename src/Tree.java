@@ -24,7 +24,7 @@ public class Tree<E> {
         this.numElt = 0;
         this.stateNode = new Node<E>(initial, null, null);
         this.frontier = new LinkedQueue<>();
-        this. reach = 
+        this.reach = new HashSet<>();
         this.frontier.enqueue(stateNode);
     }
 
@@ -71,9 +71,9 @@ public class Tree<E> {
         if(current.data.equals(goal)){ // if initial state is goal then return state space/node
             return current;
         }
-        while(!(this.frontier.isEmpty()))
-        E current = (E) frontier.dequeue();
-
+        while(!(this.frontier.isEmpty())){
+        E currentElement = (E) frontier.dequeue();}
+        
         else if(current.lChild == null){ // if not, then check the left child to see if 
             return null; // placeholder for now
         }

@@ -1,3 +1,5 @@
+import java.util.HashSet;
+
 public class Tree<E> {
     private class Node<E>{
         public E data;
@@ -15,11 +17,15 @@ public class Tree<E> {
 
     private int numElt;
     private Node<E> stateNode;
-    private Queue frontier;
+    private LinkedQueue frontier;
+    private HashSet reach; // a set bc as the algorithms progresses through there's no telling of quantity of nodes
 
     public Tree(E initial){
         this.numElt = 0;
         this.stateNode = new Node<E>(initial, null, null);
+        this.frontier = new LinkedQueue<>();
+        this. reach = 
+        this.frontier.enqueue(stateNode);
     }
 
     public void add(E data, String directions) {
@@ -46,7 +52,8 @@ public class Tree<E> {
 
 
     public E breadthFirstSearch(E goal){
-         Node <E> goalNode= breadthFirstSearchRecursive(this.stateNode, goal);
+         Node <E> goalNode= breadthFirstSearchRecursive(goal);
+         // test case for now. We can update it later by making a new node and adding Failure as the data.
          if (goalNode == null){
             return (E) "Failure";
          }
@@ -57,10 +64,16 @@ public class Tree<E> {
     }
 
     @SuppressWarnings("unchecked")
-    private Node<E> breadthFirstSearchRecursive(Node <E> current, E goal){
+    private Node<E> breadthFirstSearchRecursive(E goal){
+        // O(1)
+        // Starts at the root node, check is goal. If not, check to see if a left child exists. If it does add it to the frontier, check to see if a right child exist, if it does add it to the frontier.
+        Node <E> current = this.stateNode;
         if(current.data.equals(goal)){ // if initial state is goal then return state space/node
             return current;
         }
+        while(!(this.frontier.isEmpty()))
+        E current = (E) frontier.dequeue();
+
         else if(current.lChild == null){ // if not, then check the left child to see if 
             return null; // placeholder for now
         }
@@ -74,5 +87,8 @@ public class Tree<E> {
                 return null;
             }
         }
+        */
     }
+
+    
 }

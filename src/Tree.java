@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Tree<E> {
@@ -10,8 +11,16 @@ public class Tree<E> {
 		public Node(E state, Node<E> parent) {
 			this.state = state;
 			this.parent = parent;
-            this.cost = cost;
+            this.cost = 3; // user defined.
 		}
+
+        public Node(E state, Node<E> parent, int cost){
+            this.state = state;
+			this.parent = parent;
+            this.cost = cost; // user defined.
+        }
+
+
 
     }
 
@@ -29,27 +38,31 @@ public class Tree<E> {
         this.reach.add(stateNode);
     }
 
-    public void add(E data, String directions) {
+    public void add(E state) {
 		// Recursive helper
 		this.numElt++;
-		this.stateNode = addRecursive(data, directions, this.stateNode);
+		this.stateNode = addHelper(state, this.stateNode);
 	}
 
 
-	private Node<E> addRecursive(E data, Node<E> current) {
+	private Node<E> addHelper(E state, Node<E> current) {
 		// Recursive method to add nodes to BTree
-		if(directions.equals("")) { // base case, if empty
-			return new Node<E>(data, null, null);
+		if(current == null) { // base case, if empty
+			return new Node<E>(state, null); // initial state (root)
 		}
-		if(directions.charAt(0) == 'L') { // if first character in directions is L
-			current.lChild = addRecursive(data, directions.substring(1), current.lChild); // recursively call 
-		}
-		else {
-			current.rChild = addRecursive(data, directions.substring(1), current.rChild); // recursively call
-
-		}
-		return current;
+		else{
+            Node<E> childNode = new Node<E>(state, current);  
+            return childNode;
+        }
 	}
+
+    private ArrayList<E> expand(Node<E> current){
+        ArrayList<E> successorNodes = new ArrayList<>(); 
+        E state = current.state;
+
+        Node <E> successNode = new Node<E>(state, current);
+        return successorNodes;
+    }
 
 
     public E breadthFirstSearch(E goal){
@@ -59,7 +72,7 @@ public class Tree<E> {
             return (E) "Failure";
          }
          else{
-            return goalNode.data;
+            return goalNode.state;
          }
 
     }
@@ -69,13 +82,21 @@ public class Tree<E> {
         // O(1)
         // Starts at the root node, check is goal. If not, check to see if a left child exists. If it does add it to the frontier, check to see if a right child exist, if it does add it to the frontier.
         Node <E> current = this.stateNode;
-        if(current.data.equals(goal)){ // if initial state is goal then return state space/node
+        if(current.state.equals(goal)){ // if initial state is goal then return state space/node
             return current;
         }
         while(!(this.frontier.isEmpty())){
-            E currentElement = (E) frontier.dequeue();
+            E currentElement = (E) frontier.dequeue();}
+            /* 
+            # Generate successor nodes from the current node
+            successors = generateSuccessors(currentNode)
+        
+            # Add the successors to the frontier
+            for successor in successors:
+                frontier.enqueue(successor)
+            /* 
             for(Node<E> child : this.expand){
-                E s = child.data;
+                E s = child.state;
                 if(s.equals(goal)){ // if state matches goal
                     return null; // child
                 }
@@ -84,12 +105,13 @@ public class Tree<E> {
 
                 }
             }
-        }
+            
+        }*/
         
        
 
 
-       
+       return null;
     }
 
     

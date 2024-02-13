@@ -63,7 +63,7 @@ public class Tree<E> {
         Node <E> successNode = new Node<E>(state, current);
         return successorNodes;
     }
-
+    
 
     public E breadthFirstSearch(E goal){
          Node <E> goalNode= breadthFirstSearchRecursive(goal);
@@ -87,6 +87,7 @@ public class Tree<E> {
         }
         while(!(this.frontier.isEmpty())){
             E currentElement = (E) frontier.dequeue();}
+            
             /* 
             # Generate successor nodes from the current node
             successors = generateSuccessors(currentNode)

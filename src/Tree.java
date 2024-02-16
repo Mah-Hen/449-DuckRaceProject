@@ -27,19 +27,22 @@ public class Tree<E> {
 
     private class Action{
         // This is going to track every possible. Try the nested for loop with if statements. Even try the separate methods too. 
-        public E state;
+        public DuckState state;
+        List<DuckState> duckStates = new ArrayList<>();
 
-        public Action(E s){ // state
+        public Action(DuckState s){ // state
             this.state = s;
+            
         }
 
         public List<DuckState> moveAction(int fromPosition, int toPosition){
-            return null;
+            
+            return this.duckStates;
         }
     
     
         public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
-            return null;
+            return this.duckStates;
         }
     }
 

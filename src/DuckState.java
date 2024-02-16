@@ -32,6 +32,10 @@ public class DuckState{
         
     }
 
+    public int getDuckCounter(){
+        return this.duckCounter;
+    }
+
     public List<DuckState> moveAction(int fromPosition, int toPosition){
         return null;
     }

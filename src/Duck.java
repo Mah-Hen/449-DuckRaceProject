@@ -16,8 +16,9 @@ public class Duck {
         
     }
 
+    // Might get changed
     public void setName(int num) {
-        this.name = this.step + this.name + num;
+        this.name = this.name + num;
     }
 
     public void setEnergy(int energy){

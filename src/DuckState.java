@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class DuckState{
     private Duck[] ducks; // ducks
     private int duckCounter; // How many ducks are there
@@ -16,6 +18,7 @@ public class DuckState{
         this.duckCounter = duckCounter;
         this.maxEnergy = maxEnergy;
         this.numofpositions = numPositions;
+        ducks = new Duck[this.duckCounter];
 
         for (int i=0; i<duckCounter; i++){
             ducks[i] = new Duck();
@@ -27,5 +30,14 @@ public class DuckState{
         }
        
         
+    }
+
+    public List<DuckState> moveAction(int fromPosition, int toPosition){
+        return null;
+    }
+
+
+    public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
+        return null;
     }
 }

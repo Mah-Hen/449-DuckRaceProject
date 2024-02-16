@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class Tree<E> {
     private class Node<E>{
@@ -24,6 +25,25 @@ public class Tree<E> {
 
     }
 
+    private class Action{
+        // This is going to track every possible. Try the nested for loop with if statements. Even try the separate methods too. 
+        public E state;
+
+        public Action(E s){ // state
+            this.state = s;
+        }
+
+        public List<DuckState> moveAction(int fromPosition, int toPosition){
+            return null;
+        }
+    
+    
+        public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
+            return null;
+        }
+    }
+
+
     private int numElt;
     private Node<E> stateNode;
     private LinkedQueue frontier;
@@ -31,7 +51,7 @@ public class Tree<E> {
 
     public Tree(E initial){
         this.numElt = 0;
-        this.stateNode = new Node<E>(initial, null);
+        this.stateNode = new Node<E>(initial, null); // Initial state/node
         this.frontier = new LinkedQueue<>();
         this.reach = new HashSet<>(); // lookup table
         this.frontier.enqueue(stateNode);
@@ -55,12 +75,25 @@ public class Tree<E> {
             return childNode;
         }
 	}
+    
+    // Results
+    public List<E> generateActions(){
+        List<E> actions = new ArrayList<>();
+
+        for(int i=0; i<0; i++){
+
+        }
+        return actions;
+    }
 
     private ArrayList<E> expand(Node<E> current){
         ArrayList<E> successorNodes = new ArrayList<>(); 
         E state = current.state;
-
-        Node <E> successNode = new Node<E>(state, current);
+        /* 
+        for(Action action: generateActions()){
+            successorNodes.addAll(action.generateActions());
+        }
+        */
         return successorNodes;
     }
     
@@ -69,7 +102,7 @@ public class Tree<E> {
          Node <E> goalNode= breadthFirstSearchRecursive(goal);
          // test case for now. We can update it later by making a new node and adding Failure as the data.
          if (goalNode == null){
-            return (E) "Failure";
+            return null;
          }
          else{
             return goalNode.state;

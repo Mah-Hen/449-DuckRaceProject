@@ -40,7 +40,7 @@ public class Tree<E> {
             for(int i=0; i<ducks.length; i++){
                 if(ducks[i].getPosition() < this.state.getNumofPos() && ducks[i].getEnergy() > 0){ // If the duck's position is not at the end of the board, and they have enough energy.
                     ducks[i].decreaseEnergy();
-
+                /// test
                 }
             }
 

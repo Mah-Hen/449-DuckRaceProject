@@ -35,8 +35,15 @@ public class Tree<E> {
             
         }
 
-        public List<DuckState> moveAction(int fromPosition, int toPosition){
-            
+        public List<DuckState> moveAction(){
+            Duck[] ducks = this.state.getDucks();
+            for(int i=0; i<ducks.length; i++){
+                if(ducks[i].getPosition() < this.state.getNumofPos() && ducks[i].getEnergy() > 0){ // If the duck's position is not at the end of the board, and they have enough energy.
+                    ducks[i].decreaseEnergy();
+
+                }
+            }
+
             return this.duckStates;
         }
     

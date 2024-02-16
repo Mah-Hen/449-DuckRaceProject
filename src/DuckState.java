@@ -5,7 +5,7 @@ public class DuckState{
     private int duckCounter; // How many ducks are there
     private int maxEnergy; // maxEnergy
     private boolean flag; // has flag been picked up
-    private int numofpositions = 0; // number of positions
+    private int numofpositions = 0; // number of positions/ length of board
 
     /*  READ ME: The number of ducks and number of positions are going to create a (position, # of ducks) grid. The ducks are labeled by what 
     square their in (e.g. 0 and 1 for the 1st EX on the HW). The flag will be on the same row as the duck that is allowed to 
@@ -36,6 +36,10 @@ public class DuckState{
         return this.duckCounter;
     }
 
+    public Duck[] getDucks(){
+            return ducks;
+        }
+
     public List<DuckState> moveAction(int fromPosition, int toPosition){
         return null;
     }
@@ -43,5 +47,9 @@ public class DuckState{
 
     public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
         return null;
+    }
+
+    public int getNumofPos(){
+        return this.numofpositions;
     }
 }

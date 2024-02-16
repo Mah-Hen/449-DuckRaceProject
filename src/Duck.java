@@ -4,6 +4,7 @@ public class Duck {
     private String step = "L"; // what step each duck is on (L for left and R for right)
     private int energy = 0; // energy for each duck
     private boolean hasCap = false; 
+    private int position = 0;
 
     /*  READ ME: The number of ducks and number of positions are going to create a (position, # of ducks) grid. The ducks are labeled by what 
     square their in (e.g. 0 and 1 for the 1st EX on the HW). The flag will be on the same row as the duck that is allowed to 
@@ -25,8 +26,26 @@ public class Duck {
         this.energy = energy;
     }
 
+    public int getEnergy(){
+        return this.energy;
+    }
+
+    public void decreaseEnergy(){
+        this.energy--;
+    }
+
+    public void increaseEnergy(){
+        this.energy++;
+    }
+
     public void setHasCap(){
         this.hasCap = true;
     }
+
+    public int getPosition(){
+        return this.position;
+    }
+
+   
     
 }

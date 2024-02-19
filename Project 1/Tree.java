@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class Tree<E> {
     private class Node<E>{
@@ -24,6 +25,55 @@ public class Tree<E> {
 
     }
 
+    private class Action{
+        // This is going to track every possible. Try the nested for loop with if statements. Even try the separate methods too. 
+        public DuckState state;
+        List<DuckState> duckStates = new ArrayList<>();
+
+        public Action(DuckState s){ // state
+            this.state = s;
+            
+        }
+
+        public List<DuckState> moveAction(){
+            Duck[] ducks = this.state.getDucks();
+            for(int i=0; i<ducks.length; i++){
+                if(ducks[i].getPosition() < this.state.getNumofPos() && ducks[i].getEnergy() > 0){ // If the duck's position is not at the end of the board, and they have enough energy.
+                    ducks[i].decreaseEnergy();
+                /// test
+                }
+            }
+
+            return this.duckStates;
+        }
+    
+    
+        public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
+            if (duck1Index < 0 || duck1Index >= state.getNumofPos() || 
+            duck2Index < 0 || duck2Index >= state.getNumofPos()) {
+                return null;
+            }
+            Duck d1 = state.getDucks()[duck1Index];
+            Duck d2 = state.getDucks()[duck2Index];
+
+            if (d1.getEnergy() > 0) {
+                d1.transferEnergy(d2);
+                } 
+            else if (d2.getEnergy() > 0) {
+                d2.transferEnergy(d1);
+            }
+            else {
+                return null;
+            }
+
+            DuckState newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getduckwithcap(), state.getmaxEnergy());
+            List<DuckState> result = new ArrayList<>();
+            result.add(newState);
+            return result;
+        }
+    }
+
+
     private int numElt;
     private Node<E> stateNode;
     private LinkedQueue frontier;
@@ -31,7 +81,7 @@ public class Tree<E> {
 
     public Tree(E initial){
         this.numElt = 0;
-        this.stateNode = new Node<E>(initial, null);
+        this.stateNode = new Node<E>(initial, null); // Initial state/node
         this.frontier = new LinkedQueue<>();
         this.reach = new HashSet<>(); // lookup table
         this.frontier.enqueue(stateNode);
@@ -55,21 +105,38 @@ public class Tree<E> {
             return childNode;
         }
 	}
+    
+    // Results
+    public List<E> generateActions(){
+        List<E> actions = new ArrayList<>();
+
+        for(int i=0; i<0; i++){
+
+        }
+        return actions;
+    }
+
+    /*public List <result()> {
+
+    }*/
 
     private ArrayList<E> expand(Node<E> current){
         ArrayList<E> successorNodes = new ArrayList<>(); 
         E state = current.state;
-
-        Node <E> successNode = new Node<E>(state, current);
+        /* 
+        for(Action action: generateActions()){
+            successorNodes.addAll(action.generateActions());
+        }
+        */
         return successorNodes;
     }
-
+    
 
     public E breadthFirstSearch(E goal){
          Node <E> goalNode= breadthFirstSearchRecursive(goal);
          // test case for now. We can update it later by making a new node and adding Failure as the data.
          if (goalNode == null){
-            return (E) "Failure";
+            return null;
          }
          else{
             return goalNode.state;
@@ -87,6 +154,7 @@ public class Tree<E> {
         }
         while(!(this.frontier.isEmpty())){
             E currentElement = (E) frontier.dequeue();}
+            
             /* 
             # Generate successor nodes from the current node
             successors = generateSuccessors(currentNode)

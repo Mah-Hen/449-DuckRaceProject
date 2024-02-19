@@ -42,10 +42,43 @@ public class Duck {
         this.hasCap = true;
     }
 
+    public boolean hasCap() {
+        return hasCap;
+    }
+
     public int getPosition(){
         return this.position;
     }
 
+    public void setPosition(int pos){
+        this.position = pos;
+    }
+
+    public void incPosition(){
+        // Use L in this method
+        this.position++;
+    }
+
+    public void decPosition(){
+        // Use R in this method
+        this.position--;
+    }
+
+    public void transferEnergy(Duck otDuck){
+        if(this.energy > 0){
+            this.energy--;
+            otDuck.increaseEnergy();
+        }
+
+    }
+
+    public void pickUpFlag(){
+        this.flag = true;
+    }
+
+    public boolean hasFlag(){
+        return this.flag;
+    }
    
     
 }

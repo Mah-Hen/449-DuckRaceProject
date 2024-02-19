@@ -36,10 +36,21 @@ public class Tree<E> {
         }
 
         public List<DuckState> moveAction(){
-            Duck[] ducks = this.state.getDucks();
+            DuckState newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getDuckWithCap(), state.getmaxEnergy());
+            Duck[] ducks = newState.getDucks();
             for(int i=0; i<ducks.length; i++){
-                if(ducks[i].getPosition() < this.state.getNumofPos() && ducks[i].getEnergy() > 0){ // If the duck's position is not at the end of the board, and they have enough energy.
+                if(ducks[i].getPosition() < newState.getNumofPos() && ducks[i].getEnergy() > 0){ // If the duck's position is not at the end of the board, and they have enough energy.
                     ducks[i].decreaseEnergy();
+                    if(ducks[i].getPosition()==0){
+                        ducks[i].incPosition();// go left
+                    }
+                    if(ducks[i].hasCap() && ducks[i].getPosition()==newState.getNumofPos()){ // if has cap and at the end of board 
+                        ducks[i].pickUpFlag(); // flag == true
+                    }
+                    if(ducks[i].hasFlag()){ // 
+                        ducks[i].decPosition(); // go right
+                    }
+                    
                 /// test
                 }
             }
@@ -49,9 +60,30 @@ public class Tree<E> {
     
     
         public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
-            return this.duckStates;
+            DuckState newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getDuckWithCap(), state.getmaxEnergy());
+            if (duck1Index < 0 || duck1Index >= newState.getNumofPos() || 
+            duck2Index < 0 || duck2Index >= newState.getNumofPos()) {
+                return null;
+            }
+            Duck d1 = newState.getDucks()[duck1Index];
+            Duck d2 = newState.getDucks()[duck2Index];
+
+            if (d1.getEnergy() > 0) {
+                d1.transferEnergy(d2);
+                } 
+            else if (d2.getEnergy() > 0) {
+                d2.transferEnergy(d1);
+            }
+            else {
+                return null;
+            }
+
+            List<DuckState> result = new ArrayList<>();
+            result.add(newState);
+            return result;
         }
     }
+
 
 
     private int numElt;

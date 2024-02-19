@@ -36,25 +36,62 @@ public class Tree<E> {
         }
 
         public List<DuckState> moveAction(){
-            Duck[] ducks = this.state.getDucks();
+            DuckState newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getDuckWithCap(), state.getmaxEnergy());
+            Duck[] ducks = newState.getDucks();
+            int middle = newState.getNumofPos()/2;
             for(int i=0; i<ducks.length; i++){
-                if(ducks[i].getPosition() < this.state.getNumofPos() && ducks[i].getEnergy() > 0){ // If the duck's position is not at the end of the board, and they have enough energy.
+                if(ducks[i].getPosition() < newState.getNumofPos() && ducks[i].getEnergy() > 0){ // If the duck's position is not at the end of the board, and they have enough energy.
                     ducks[i].decreaseEnergy();
+                    if(ducks[i].getPosition()==0){
+                        ducks[i].incPosition();// go left
+                    }
+                    if(ducks[i].getPosition() == middle && !ducks[i].hasCap()) {
+                        ducks[i].decPosition();//go right
+                    }
+                    if(ducks[i].hasCap() && ducks[i].getPosition()==newState.getNumofPos()){ // if has cap and at the end of board 
+                        ducks[i].pickUpFlag(); // flag == true
+                    }
+                    if(ducks[i].hasFlag()){ // 
+                        ducks[i].decPosition(); // go right
+                    }
+                    movemntdecision(ducks[i]);
                 /// test
                 }
             }
+            List<DuckState> result = new ArrayList<>() 
+            result.add(newState);
+            return result;
+        }
 
-            return this.duckStates;
+        private void movemntdecision(Duck duck) {
+            if (duck.getPosition() == 0) {
+                duck.incPosition();
+            }
+            else if(duck.getPosition() == state.getNumofPos()) {
+                duck.decPosition();
+            }
+            else {
+                if (duck.hasFlag()) {
+                    duck.decPosition();
+                }
+                else if() {
+                    duck.incPosition();
+                }
+                else {
+                    duck.decPosition();
+                }
+            }
         }
     
     
         public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
-            if (duck1Index < 0 || duck1Index >= state.getNumofPos() || 
-            duck2Index < 0 || duck2Index >= state.getNumofPos()) {
+            DuckState newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getDuckWithCap(), state.getmaxEnergy());
+            if (duck1Index < 0 || duck1Index >= newState.getNumofPos() || 
+            duck2Index < 0 || duck2Index >= newState.getNumofPos()) {
                 return null;
             }
-            Duck d1 = state.getDucks()[duck1Index];
-            Duck d2 = state.getDucks()[duck2Index];
+            Duck d1 = newState.getDucks()[duck1Index];
+            Duck d2 = newState.getDucks()[duck2Index];
 
             if (d1.getEnergy() > 0) {
                 d1.transferEnergy(d2);
@@ -66,12 +103,12 @@ public class Tree<E> {
                 return null;
             }
 
-            DuckState newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getduckwithcap(), state.getmaxEnergy());
             List<DuckState> result = new ArrayList<>();
             result.add(newState);
             return result;
         }
     }
+
 
 
     private int numElt;
@@ -115,10 +152,6 @@ public class Tree<E> {
         }
         return actions;
     }
-
-    /*public List <result()> {
-
-    }*/
 
     private ArrayList<E> expand(Node<E> current){
         ArrayList<E> successorNodes = new ArrayList<>(); 

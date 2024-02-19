@@ -1,23 +1,25 @@
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DuckState {
+public class DuckState{
     private Duck[] ducks; // ducks
     private int duckCounter; // How many ducks are there
     private int maxEnergy; // maxEnergy
     private boolean flag; // has flag been picked up
     private int numofpositions = 0; // number of positions
+    //private String step = "L"; // what step each duck is on (L for left and R for right)
+    private int duckWithCap;
 
-    /*  READ ME: The number of ducks and number of positions are going to create a (position, # of ducks) grid. The ducks are labeled by what 
-    square their in (e.g. 0 and 1 for the 1st EX on the HW). The flag will be on the same row as the duck that is allowed to 
-    (the one with the cap). Use 'T' as a means to show that there was an energy swap followed by '->' symbolizing who received it. 
-    This is what should be coded within the Duck and DuckState classes. Be sure to make toString methods!
-    And do the input too.
+
+    /* update the get duck method to where we call the duck constructor from the duck class.
     */
 
     public DuckState(int duckCounter, int numPositions, int duckWithCap, int maxEnergy) {
         this.duckCounter = duckCounter;
         this.maxEnergy = maxEnergy;
         this.numofpositions = numPositions;
+        this.duckWithCap = duckWithCap;
+        ducks = new Duck[this.duckCounter];
 
         for (int i=0; i<duckCounter; i++){
             ducks[i] = new Duck();
@@ -31,52 +33,78 @@ public class DuckState {
         
     }
 
-    //still have to adjust the flag position aligned with the duck with cap
+    public int getDuckCounter(){
+        return this.duckCounter;
+    }
 
-    public void duckwithflag() {
+    public Duck[] getDucks(){
+        return ducks;
+    }
+
+    public int getmaxEnergy() {
+        return maxEnergy;
+    }
+
+    public int getduckwithcap() {
+        return duckWithCap;
+    }
+
+    public List<DuckState> moveAction(int fromPosition, int toPosition){
+        if (fromPosition < 0 || fromPosition >= numofpositions || 
+        toPosition < 0 || toPosition >= numofpositions) {
+            return null;
+        }
+        Duck movement = ducks[fromPosition];
+        if(movement == null) {
+            return null; 
+        }
+
+
+        if (!(toPosition == fromPosition - 1 || toPosition == fromPosition + 1)) {
+            return null;  // Not adjacent positions
+        }
+
         for (int i = 0; i < ducks.length; i++) {
-            ducks[i].move();
-            if (ducks[i].hasCap()) {
-                //String duckposition = duck.getName();
-                //System.out.println(duckposition + " F ");
-                System.out.println(ducks[i] + " ");
+            if (ducks[i].getPosition() == toPosition) {
+                return null; // can't move a duck that is already in the target position
             }
         }
-    }
 
-    public void tracksteps() {
-        try (Scanner scanner = new Scanner(System.in)) {
-            for (int i = 0; i < ducks.length; i++) {
-                ducks[i].move();
-            }
-
-            System.out.println("which duck is giving energy: ");
-            int duckgiver = scanner.nextInt();
-            System.out.println("which duck is receiving energy: ");
-            int duckreciever = scanner.nextInt();
-
-            if (duckgiver >= 0 && duckgiver < duckCounter && duckreciever >= 0 && duckreciever >= 0 && duckreciever < duckCounter && 
-            duckgiver != duckreciever && ducks[duckgiver].getenergy() > 0) {
-                ducks[duckgiver].transferEnergy(ducks[duckreciever]);
-                System.out.println("T" + duckgiver);
-            }
-            else {
-                System.out.println("Invalid energy transfer. Please try again.");
-            }
+        if (!flag && fromPosition == duckWithCap) {
+            Duck capduck = ducks[fromPosition];
+            capduck.setflag(true);
+            flag = true;
         }
-        for(int i = 0; i < ducks.length; i++) {
-            if (ducks[i].hasCap() && ducks[i].getName().equals("L0")) {
-                ducks[i].setflag(true);
-                System.out.println("Duck " + ducks[i].getName() + " picked up the flag");
-            }
 
-            if (ducks[i].hasFlag() && !ducks[i].hasCap() && ducks[i].getName().equals(ducks[i].getName().substring(0, 1) + (duckCounter - 1))) {
-                System.out.println("Duck " + ducks[i].getName() + " delivered the flag");
-            }
-            
-        }
+        movement.setPosition(toPosition);
+        movement.decreaseEnergy();
+
+        //check to see if we need the duckwithcap variable for this class at top and below
+
+        DuckState duckState = new DuckState(duckCounter, numofpositions, duckWithCap, maxEnergy);
+        List<DuckState> result = new ArrayList<>();
+        result.add(duckState);
+        return result;
     }
 
 
+    public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
+        return null;
+    }
+
+    public int getNumofPos(){
+        return this.numofpositions;
+    }
+
+
+    /** 
+    public void move() {
+        if (step.equals("L")) {
+            step = "R";
+        }
+        else {
+            step = "L";
+        }
+        setName(Integer.parseInt(name.substring(1)));
+    }**/
 }
-

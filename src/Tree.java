@@ -28,7 +28,7 @@ public class Tree<E> {
     private class Action{
         // This is going to track every possible. Try the nested for loop with if statements. Even try the separate methods too. 
         public DuckState state;
-        List<DuckState> duckStates = new ArrayList<>();
+        List<Act> duckStates = new ArrayList<>();
 
         public Action(DuckState s){ // state
             this.state = s;
@@ -50,7 +50,10 @@ public class Tree<E> {
                     if(ducks[i].hasFlag()){ // 
                         ducks[i].decPosition(); // go right
                     }
-                    
+                    else{
+                        movementDecison();
+                    }
+
                 /// test
                 }
             }
@@ -119,8 +122,9 @@ public class Tree<E> {
 	}
     
     // Results
-    public List<E> generateActions(){
-        List<E> actions = new ArrayList<>();
+    public List<Action> generateActions(DuckState s){
+        List<Action> actions = new ArrayList<>();
+        Action action = new Action(s);
 
         for(int i=0; i<0; i++){
 
@@ -128,14 +132,12 @@ public class Tree<E> {
         return actions;
     }
 
-    private ArrayList<E> expand(Node<E> current){
-        ArrayList<E> successorNodes = new ArrayList<>(); 
+    private ArrayList<Node <E>> expand(Node<E> current){
+        ArrayList<Node<E>> successorNodes = new ArrayList<>(); 
         E state = current.state;
-        /* 
         for(Action action: generateActions()){
-            successorNodes.addAll(action.generateActions());
+            successorNodes.add(action.generateActions());
         }
-        */
         return successorNodes;
     }
     
@@ -161,7 +163,19 @@ public class Tree<E> {
             return current;
         }
         while(!(this.frontier.isEmpty())){
-            E currentElement = (E) frontier.dequeue();}
+            Node <E> currentNode = (Node<E>) frontier.dequeue(); // Node
+            for(Node<E> child : expand(currentNode)){
+                DuckState nodeState = (DuckState) child.state;
+                if(nodeState.equals(goal)){
+                    return child; // nodeState/Child same thing. Can change later
+                }
+                else{
+                    this.reach.add(nodeState);
+                    this.frontier.enqueue(child);
+                }
+            }
+        }
+        return null; // failure
             
             /* 
             # Generate successor nodes from the current node

@@ -32,7 +32,7 @@ public class Driver {
         DuckState newState = new DuckState(2, 3, 0, 3);
 
         Tree tree = new Tree<DuckState>(newState);
-        //System.out.println(tree.breadthFirstSearch("Justina"));
+        System.out.println(tree.breadthFirstSearch("Justina"));
         
 
     }

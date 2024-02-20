@@ -7,7 +7,7 @@ public class Node<E>{
     public Node<E> parent;
     public Action action;
     public int cost;
-    private Node<E> stateNode = new Node<E>(state, parent);
+    //private Node<E> stateNode; //= new Node<E>(state, parent);
     private LinkedQueue frontier = new LinkedQueue<>();
     private HashSet reach = new HashSet<>(); // a set bc as the algorithms progresses through there's no telling of quantity of nodes
     
@@ -19,8 +19,8 @@ public class Node<E>{
         this.parent = parent;
         this.cost = 3; // user defined.
         //this.stateNode = new Node<E>(initial, null); // Initial state/node
-        frontier.enqueue(stateNode);
-        reach.add(stateNode);
+        frontier.enqueue(this);
+        reach.add(this);
 
     }
 
@@ -174,7 +174,7 @@ public class Node<E>{
     private Node<DuckState> breadthFirstSearchHelper(){
         // O(1)
         // Starts at the root node, check is goal. If not, check to see if a left child exists. If it does add it to the frontier, check to see if a right child exist, if it does add it to the frontier.
-        Node <DuckState> current = (Node<DuckState>) this.stateNode;
+        Node <DuckState> current = new Node<DuckState>(this.state, null); // initial state
         if(this.isgoal(current.state)){ // if initial state is goal then return state space/node
             return current;
         }

@@ -2,27 +2,36 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class Tree<E> {
-    private class Node<E>{
-        public E state;
-		public Node<E> parent;
-        public int cost;
-
-
-		public Node(E state, Node<E> parent) {
-			this.state = state;
-			this.parent = parent;
-            this.cost = 3; // user defined.
-		}
-
-        public Node(E state, Node<E> parent, int cost){
-            this.state = state;
-			this.parent = parent;
-            this.cost = cost; // user defined.
-        }
+public class Node<E>{
+    public E state;
+    public Node<E> parent;
+    public int cost;
+    private int numElt;
+    private Node<E> stateNode;
+    private LinkedQueue frontier;
+    private HashSet reach; // a set bc as the algorithms progresses through there's no telling of quantity of nodes
+    private DuckState goalState;
 
 
 
+    @SuppressWarnings("unchecked")
+    public Node(E initial, Node<E> parent) {
+        this.state = initial;
+        this.parent = parent;
+        this.cost = 3; // user defined.
+        this.numElt = 0;
+        this.stateNode = new Node<E>(initial, null); // Initial state/node
+        this.frontier = new LinkedQueue<>();
+        this.reach = new HashSet<>(); // lookup table
+        this.frontier.enqueue(stateNode);
+        this.reach.add(stateNode);
+        
+    }
+
+    public Node(E state, Node<E> parent, int cost){
+        this.state = state;
+        this.parent = parent;
+        this.cost = cost; // user defined.
     }
 
     private class Action{
@@ -86,44 +95,6 @@ public class Tree<E> {
             return result;
         }
     }
-
-
-
-    private int numElt;
-    private Node<E> stateNode;
-    private LinkedQueue frontier;
-    private HashSet reach; // a set bc as the algorithms progresses through there's no telling of quantity of nodes
-    private DuckState goalState;
-
-    public Tree(E initial){
-        this.numElt = 0;
-        this.stateNode = new Node<E>(initial, null); // Initial state/node
-        this.frontier = new LinkedQueue<>();
-        this.reach = new HashSet<>(); // lookup table
-        this.frontier.enqueue(stateNode);
-        this.reach.add(stateNode);
-        
-    }
-
-    public void add(E state) {
-		// Recursive helper
-		this.numElt++;
-		this.stateNode = addHelper(state, this.stateNode);
-	}
-
-
-	private Node<E> addHelper(E state, Node<E> current) {
-		// Recursive method to add nodes to BTree
-		if(current == null) { // base case, if empty
-			return new Node<E>(state, null); // initial state (root)
-		}
-		else{
-            Node<E> childNode = new Node<E>(state, current);  
-            return childNode;
-        }
-	}
-    
-    // Results
     public List<Action> generateActions(DuckState s){
         List<Action> actions = new ArrayList<>();
         Action action = new Action(s);
@@ -201,8 +172,8 @@ public class Tree<E> {
         }*/
     }
 
-    public E bestfirstsearch(E goal) {
-        Node<E> goalNode = bestfirstsearchhelper(goal);
+    public E bestfirstsearch() {
+        Node<E> goalNode = bestfirstsearchhelper();
         if (goalNode == null) {
             return null;
         }
@@ -212,17 +183,13 @@ public class Tree<E> {
     }
 
     @SuppressWarnings("unchecked")
-    private Node<E> bestfirstsearchhelper(E goal) {
-        this.frontier = new LinkedQueue<>();
-        this.frontier.enqueue(stateNode);
-        this.reach = new HashSet<>();
-        reach.add(stateNode.state);
+    private Node<E> bestfirstsearchhelper() {
         if (frontier.isEmpty()) {
             return null;
         }
         while(!frontier.isEmpty()) {
             Node<E> currentNode = (Node<E>) frontier.dequeue();
-            if (currentNode.state.equals(goal)) {
+            if (this.isgoal(currentNode.goalState)) {
                 return currentNode;
             }
             ArrayList<Node<E>> child = expand(currentNode);
@@ -255,5 +222,4 @@ public class Tree<E> {
 
     }
 
-    
 }

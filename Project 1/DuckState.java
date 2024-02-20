@@ -46,14 +46,7 @@ public class DuckState{
         return this.getmaxEnergy();
     }
 
-    public List<DuckState> moveAction(int fromPosition, int toPosition){
-        return null;
-    }
-
-
-    public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
-        return null;
-    }
+    
 
     public int getNumofPos(){
         return this.numofpositions;

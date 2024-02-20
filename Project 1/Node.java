@@ -83,14 +83,15 @@ public class Node<E>{
         }
     
     
-        public List<DuckState> energySwapAction(int duck1Index, int duck2Index){
-            DuckState newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getDuckWithCap(), state.getmaxEnergy());
-            if (duck1Index < 0 || duck1Index >= newState.getNumofPos() || 
-            duck2Index < 0 || duck2Index >= newState.getNumofPos()) {
-                return null;
+        public boolean canTransferEnergy(int duck1, int duck2, DuckState newState){
+            newState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getDuckWithCap(), state.getmaxEnergy());
+            if (duck1 < 0 || duck1 >= newState.getNumofPos() || 
+            duck2 < 0 || duck2 >= newState.getNumofPos()) {
+                return false;
             }
-            Duck d1 = newState.getDucks()[duck1Index];
-            Duck d2 = newState.getDucks()[duck2Index];
+
+            Duck d1 = newState.getDucks()[duck1];
+            Duck d2 = newState.getDucks()[duck2];
 
             if (d1.getEnergy() > 0) {
                 d1.transferEnergy(d2);
@@ -99,39 +100,41 @@ public class Node<E>{
                 d2.transferEnergy(d1);
             }
             else {
-                return null;
+                return false;
             }
+            return false;
 
-            List<DuckState> result = new ArrayList<>();
+            /*List<DuckState> result = new ArrayList<>();
             result.add(newState);
-            return result;
+            return result;*/
         }
         public List<Action> generateActions(DuckState s){
             List<Action> actions = new ArrayList<>();
+            Duck [] ducks = currentstate.getDucks();
             //Action action = new Action(s);
     
             for(int i=0; i < s.getDucks().length; i++){
-                Duck duck = s.getDucks().get(i);
+                Duck[] duck = s.getDucks();
                 if (canMoveLeft(duck, state)) {
-                    actions.add(new Action("L", duck.getNumber()));
+                    actions.add(new Action("L", duck.length));
                 }
                 if (canMoveRight(duck, state)) {
-                    actions.add(new Action("R", duck.getNumber()));
+                    actions.add(new Action("R", duck.length));
                 }
             }
-            for (int i = 0; i < state.getDucks().size(); i++) {
-                Duck duck1 = state.getDucks().get(i);
-                for (int j = i + 1; j < state.getDucks().size(); j++) {
-                    Duck duck2 = state.getDucks().get(j);
-                    if (canTransferEnergy(duck1, duck2, state)) {
-                        actions.add(new Action("t->", duck1.getNumber(), duck2.getNumber()));
+            for (int i = 0; i < s.getDucks().length; i++) {
+                Duck duck1 = ducks[i];
+                for (int j = i + 1; j < s.getDucks().length; j++) {
+                    Duck duck2 = s.getDucks();
+                    if (canTransferEnergy(duck1.getPosition(), duck2.getPosition(), state)) {
+                        actions.add(new Action("t->", duck1.getPosition(), duck2.getPosition()));
                     }
                 }
             }
-        
-            }
             return actions;
         }
+
+        
     }
     /*public List<Action> generateActions(DuckState s){
         List<Action> actions = new ArrayList<>();

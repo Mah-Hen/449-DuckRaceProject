@@ -62,4 +62,8 @@ public class DuckState{
     public int getDuckWithCap(){
         return this.duckWithCap;
     }
+
+    public Duck getDuck(int index){
+        return this.ducks[index];
+    }
 }

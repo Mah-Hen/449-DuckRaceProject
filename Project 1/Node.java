@@ -37,11 +37,23 @@ public class Node<E>{
     private class Action{
         // This is going to track every possible. Try the nested for loop with if statements. Even try the separate methods too. 
         public DuckState state;
+        private String type;
+        private int duckNumber;
+        private int receiverDuckNumber;
         List<DuckState> duckStates = new ArrayList<>();
 
-        public Action(DuckState s){ // state
+        /*public Action(DuckState s){ // state
             this.state = s;
             
+        }*/
+        public Action(String type, int duckNumber) {
+            this.type = type;
+            this.duckNumber = duckNumber;
+        }
+
+        public Action(String type, int duckNumber, int receiverDuckNumber) {
+            this(type, duckNumber);
+            this.receiverDuckNumber = receiverDuckNumber;
         }
 
         public List<DuckState> moveAction(){
@@ -94,8 +106,34 @@ public class Node<E>{
             result.add(newState);
             return result;
         }
+        public List<Action> generateActions(DuckState s){
+            List<Action> actions = new ArrayList<>();
+            //Action action = new Action(s);
+    
+            for(int i=0; i < s.getDucks().length; i++){
+                Duck duck = s.getDucks().get(i);
+                if (canMoveLeft(duck, state)) {
+                    actions.add(new Action("L", duck.getNumber()));
+                }
+                if (canMoveRight(duck, state)) {
+                    actions.add(new Action("R", duck.getNumber()));
+                }
+            }
+            for (int i = 0; i < state.getDucks().size(); i++) {
+                Duck duck1 = state.getDucks().get(i);
+                for (int j = i + 1; j < state.getDucks().size(); j++) {
+                    Duck duck2 = state.getDucks().get(j);
+                    if (canTransferEnergy(duck1, duck2, state)) {
+                        actions.add(new Action("t->", duck1.getNumber(), duck2.getNumber()));
+                    }
+                }
+            }
+        
+            }
+            return actions;
+        }
     }
-    public List<Action> generateActions(DuckState s){
+    /*public List<Action> generateActions(DuckState s){
         List<Action> actions = new ArrayList<>();
         Action action = new Action(s);
 
@@ -103,12 +141,13 @@ public class Node<E>{
 
         }
         return actions;
-    }
+    }*/
 
     private ArrayList<Node <E>> expand(Node<E> current){
         ArrayList<Node<E>> successorNodes = new ArrayList<>(); 
-        E state = current.state;
-        for(Action action: generateActions(state)){
+        DuckState state = (DuckState) current.state;
+        Action newaction = new Action(goalState);
+        for(Action action: newaction.generateActions(state)){
             successorNodes.add(action.generateActions());
         }
         return successorNodes;

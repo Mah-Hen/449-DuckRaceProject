@@ -4,7 +4,7 @@ public class DuckState{
     private Duck[] ducks; // ducks
     private int duckCounter; // How many ducks are there
     private int maxEnergy; // maxEnergy
-    private boolean flag; // has flag been picked up
+    //private boolean flag; // has flag been picked up
     private int numofpositions = 0; // number of positions/ length of board
     private int duckWithCap;
 
@@ -43,7 +43,7 @@ public class DuckState{
         }
 
     public int getmaxEnergy(){
-        return this.getmaxEnergy();
+        return this.maxEnergy;
     }
 
     public List<DuckState> moveAction(int fromPosition, int toPosition){

@@ -65,9 +65,9 @@ public class Duck {
     }
 
     public void transferEnergy(Duck otDuck){
-        if(this.energy > 0){
+        if(this.energy > 0){ 
             this.energy--;
-            otDuck.increaseEnergy();
+            otDuck.increaseEnergy(); 
         }
 
     }

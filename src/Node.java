@@ -2,8 +2,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.lang.Comparable;
 
-public class Node<E> {
+public class Node<E>{
     public DuckState state;
     public Node<E> parent;
     public Action action;
@@ -146,12 +147,15 @@ public class Node<E> {
     }
 
     private DuckState result(DuckState currentState, Action action) {
-            DuckState changedState = new DuckState(currentState.getDuckCounter(), currentState.getNumofPos(),
-                currentState.getDuckWithCap(), currentState.getmaxEnergy());
+            DuckState changedState = currentState;//new DuckState(currentState.getDuckCounter(), currentState.getNumofPos(),
+                //currentState.getDuckWithCap(), currentState.getmaxEnergy());
             Duck duck = changedState.getDuck(action.duckNumber);
             if (action.type.equals("L")) { // If canMoveLeft
                 duck.decreaseEnergy();
                 duck.incPosition();
+                if(duck.getPosition()==currentState.getNumofPos() && duck.hasCap()){
+                    duck.pickUpFlag();
+                }
             }
             else if (action.type.equals("R")) { // If canMoveRight
                 duck.decreaseEnergy();
@@ -179,12 +183,12 @@ public class Node<E> {
     }
     */
 
-    private String getPath(Node<DuckState> completedNode){ // This node reached the goal
+    private String getPath(Node<E> completedNode){ // This node reached the goal
         String goalPath = "";
-        List<Node<DuckState>> pathNodes = new ArrayList<>();
+        List<Node<E>> pathNodes = new ArrayList<>();
         pathNodes = getPathRecursive(completedNode, pathNodes);
         for(int i=0; i<pathNodes.size();i++){
-            Node<DuckState> pathNode = pathNodes.get(i);
+            Node<E> pathNode = pathNodes.get(i);
             if(pathNode.action.type.equals("L") || pathNode.action.type.equals("R")){
             goalPath += pathNode.action.type + pathNode.action.duckNumber;
             }
@@ -195,7 +199,7 @@ public class Node<E> {
         return goalPath;
     }
 
-    private List<Node<DuckState>> getPathRecursive(Node<DuckState> current, List<Node<DuckState>> path){
+    private List<Node<E>> getPathRecursive(Node<E> current, List<Node<E>> path){
         if(current.parent == null){ // first/initial node
             path.add(0, current);
             return path;
@@ -205,14 +209,14 @@ public class Node<E> {
         return path;
     }
 
-    private List<Node<DuckState>> expand(Node<DuckState> current) {
+    private List<Node<E>> expand(Node<E> current) {
         DuckState currentState = current.state;
-        List<Node<DuckState>> successorNodes = new ArrayList<>();
+        List<Node<E>> successorNodes = new ArrayList<>();
 
         for (Action action : generateActions(currentState)) {
             DuckState changedState = result(currentState, action);
             int cost = current.pathCost + 1;//actionCost(currentState, action, changedState);
-            Node<DuckState> succesorNode = new Node<DuckState>(changedState, current, (Node<DuckState>.Action) action,
+            Node<E> succesorNode = new Node<E>(changedState, current, (Action) action,
                     cost);
             successorNodes.add(succesorNode);
         }
@@ -221,11 +225,11 @@ public class Node<E> {
     }
 
     public String breadthFirstSearch() {
-        Node<DuckState> completeNode = breadthFirstSearchHelper(); // the node that completed the puzzle or reached the goal
+        Node<E> completeNode = breadthFirstSearchHelper(); // the node that completed the puzzle or reached the goal
         // test case for now. We can update it later by making a new node and adding
         // Failure as the data.
         if (completeNode == null) {
-            return "Failuer";
+            return "Failure";
         } else {
             return getPath(completeNode);
         }
@@ -233,16 +237,16 @@ public class Node<E> {
     }
 
     @SuppressWarnings("unchecked")
-    private Node<DuckState> breadthFirstSearchHelper() {
-        // O(1)
+    private Node<E> breadthFirstSearchHelper() {
+        // O(N)
         // Starts at the root node, check is goal. 
-        Node<DuckState> current = new Node<DuckState>(this.state, null); // initial state
+        Node<E> current = new Node<E>(this.state, null); // initial state
         if (this.isgoal(current.state)) { // if initial state is goal then return state space/node
             return current;
         }
         while (!(this.frontier.isEmpty())) {
-            Node<DuckState> currentNode = (Node<DuckState>) frontier.dequeue(); // Node
-            for (Node<DuckState> child : expand(currentNode)) {
+            Node<E> currentNode = (Node<E>) frontier.dequeue(); // Node
+            for (Node<E> child : expand(currentNode)) {
                 DuckState nodeState = (DuckState) child.state;
                 if (this.isgoal(nodeState)) {
                     return child; // nodeState/Child same thing. Can change later
@@ -278,7 +282,7 @@ public class Node<E> {
     }
 
     public DuckState bestfirstsearch() {
-        Node<DuckState> goalNode = bestfirstsearchhelper();
+        Node<E> goalNode = bestfirstsearchhelper();
         if (goalNode == null) {
             return null;
         } else {
@@ -287,17 +291,17 @@ public class Node<E> {
     }
 
     @SuppressWarnings("unchecked")
-    private Node<DuckState> bestfirstsearchhelper() {
+    private Node<E> bestfirstsearchhelper() {
         if (frontier.isEmpty()) {
             return null;
         }
         while (!frontier.isEmpty()) {
-            Node<DuckState> currentNode = (Node<DuckState>) frontier.dequeue();
+            Node<E> currentNode = (Node<E>) frontier.dequeue();
             if (this.isgoal(currentNode.state)) {
                 return currentNode;
             }
-            List<Node<DuckState>> child = expand(currentNode);
-            for (Node<DuckState> newchild : child) {
+            List<Node<E>> child = expand(currentNode);
+            for (Node<E> newchild : child) {
                 DuckState childstate = newchild.state;
                 if (!reach.contains(childstate)) {
                     reach.add(childstate);
@@ -313,20 +317,38 @@ public class Node<E> {
         return null;
         }
 
-    public boolean isgoal(DuckState State) {
+    public boolean isgoal(Node<E> currentNode) {
+        DuckState goalState = new DuckState(state.getDuckCounter(), state.getNumofPos(), state.getDuckWithCap(), state.getmaxEnergy());
+        Duck[] ducks = currentNode.state.getDucks();
+        for(int i=0; i<goalState.getDuckCounter(); i++){
+            Duck duck = goalState.getDuck(i);
+            if(duck.hasCap()){
+                duck.pickUpFlag();
+            }
+        }
+        if(){
+            return true;
+        }
+        /* 
         Duck[] ducks = State.getDucks();
         int counter = 0;
         for (int i = 0; i < ducks.length; i++) {
-            if (ducks[i].hasCap() && ducks[i].hasFlag() && ducks[i].getPosition() == 0) {
+            Duck duck = ducks[i];
+            if (duck.hasCap() && duck.hasFlag() && duck.getPosition() == 0) {
                 counter++;
-            } else if (!ducks[i].hasCap() && !ducks[i].hasFlag() && ducks[i].getPosition() == 0) {
+            } 
+            if (!duck.hasCap() && !duck.hasFlag() && duck.getPosition() == 0) {
                 counter++;
             }
         }
         if (counter == ducks.length) {
             return true;
         }
+        */
         return false;
 
     }
+
+  
+
 }

@@ -18,7 +18,7 @@ public class DuckState{
     public DuckState(int duckCounter, int numPositions, int duckWithCap, int maxEnergy) {
         this.duckCounter = duckCounter;
         this.maxEnergy = maxEnergy;
-        this.numofpositions = numPositions;
+        this.numofpositions = numPositions-1; // The number is going to come in as 1 but we start at 0.
         this.duckWithCap = duckWithCap;
         ducks = new Duck[this.duckCounter];
 
@@ -56,7 +56,7 @@ public class DuckState{
     }
 
     public int getNumofPos(){
-        return this.numofpositions;
+        return this.numofpositions+1;
     }
 
     public int getDuckWithCap(){
@@ -66,4 +66,24 @@ public class DuckState{
     public Duck getDuck(int index){
         return this.ducks[index];
     }
+
+    @Override
+    public boolean equals(Object state){
+        int count = 0;
+        DuckState oState = (DuckState) state;
+
+        for(int i =0; i<this.duckCounter;i++){
+            Duck duck = this.getDuck(i);
+            Duck duck2 = oState.getDuck(i);
+            if(duck.compareTo(duck2)){
+                count++;
+            }
+        }
+        if(count==this.duckCounter){
+            return true;
+        }
+        return false;
+    }
+
+    
 }

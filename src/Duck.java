@@ -1,7 +1,7 @@
-public class Duck { 
-    private String name = "";
+public class Duck{ 
+    private int name;
     private boolean flag = false; // 
-    private String step = "L"; // what step each duck is on (L for left and R for right)
+    //private String step = "L"; // what step each duck is on (L for left and R for right)
     private int energy = 0; // energy for each duck
     private boolean hasCap = false; 
     private int position = 0;
@@ -17,9 +17,21 @@ public class Duck {
         
     }
 
+    Duck(int name, boolean flag, int energy, boolean hasCap, int position){
+        this.name = name;
+        this.flag = flag;
+        this.energy=  energy;
+        this.hasCap = hasCap;
+        this.position = position;
+    }
+
     // Might get changed
     public void setName(int num) {
-        this.name = this.name + num;
+        this.name = num;
+    }
+
+    public int getName(){
+        return name;
     }
 
     public void setEnergy(int energy){
@@ -79,6 +91,17 @@ public class Duck {
     public boolean hasFlag(){
         return this.flag;
     }
+
+  
+    public boolean compareTo(Duck o) {
+       if (this.name == o.name && this.flag == o.flag && this.hasCap == o.hasCap 
+       && this.energy == o.energy && this.position == o.position){
+        return true;
+       }
+    
+    return false;
+    }
    
+    
     
 }

@@ -109,7 +109,8 @@ public class Node<E> {
                 && duck1.getPosition() >= 0 && duck1.getPosition() < currentState.getNumofPos()
                 && duck2.getPosition() >= 0 && duck2.getPosition() < currentState.getNumofPos()) {
             // If they both have MAX energy then no transfer is available
-            if (duck1.getEnergy() < currentState.getmaxEnergy() && duck2.getEnergy() < currentState.getmaxEnergy()) {
+            if (duck1.getEnergy() < currentState.getmaxEnergy() && duck2.getEnergy() <= currentState.getmaxEnergy() 
+            || duck2.getEnergy() < currentState.getmaxEnergy() && duck1.getEnergy() <= currentState.getmaxEnergy()) {
                 return true;
             } 
         }
@@ -341,9 +342,9 @@ public class Node<E> {
         DuckState goalState = new DuckState(this.state.getDuckCounter(), this.state.getNumofPos(),
                 this.state.getDuckWithCap(), this.state.getmaxEnergy());
         for (int i = 0; i < goalState.getDuckCounter(); i++) {
-            Duck duck = goalState.getDuck(i);
-            if (duck.hasCap()) {
-                duck.pickUpFlag();
+            Duck goalStateDuck = goalState.getDuck(i);
+            if (goalStateDuck.hasCap()) {
+                goalStateDuck.pickUpFlag();
             }
         }
         return goalState.equals(state);

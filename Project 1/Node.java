@@ -262,8 +262,8 @@ private List<Node<E>> expand(Node<E> current, int limiter) {
     
 }
 
-public String breadthFirstSearch() {
-    Node<E> completeNode = breadthFirstSearchHelper(); // the node that completed the puzzle or reached the goal
+public String breadthFirstSearch(int limiter) {
+    Node<E> completeNode = breadthFirstSearchHelper(limiter); // the node that completed the puzzle or reached the goal
     // test case for now. We can update it later by making a new node and adding
     // Failure as the data.
     if (completeNode == null) {
@@ -298,8 +298,8 @@ private Node<E> breadthFirstSearchHelper(int limiter) {
     return null; // failure
 }
 
-public String bestFirstSearch() {
-    Node<E> completedNode = bestfirstsearchhelper();
+public String bestFirstSearch(int limiter) {
+    Node<E> completedNode = bestfirstsearchhelper(limiter);
     if (completedNode == null) {
         return "failure";
     } else {
@@ -329,8 +329,8 @@ private Node<E> bestfirstsearchhelper(int limiter) {
     return null;
 }
 
-public String aStarSearch() {
-    Node<E> reachnode = aStarSearchHelper();
+public String aStarSearch(int limiter) {
+    Node<E> reachnode = aStarSearchHelper(limiter);
     if (reachnode == null) {
         return "Failure: No Path Found.";
     } else {

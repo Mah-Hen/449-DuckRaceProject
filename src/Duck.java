@@ -95,7 +95,7 @@ public class Duck{
   
     public boolean compareTo(Duck o) {
        if (this.name == o.name && this.flag == o.flag && this.hasCap == o.hasCap 
-       && this.energy == o.energy && this.position == o.position){
+       && this.position == o.position){
         return true;
        }
     

@@ -30,10 +30,10 @@ public class Driver {
         int maxEnergy = Integer.parseInt(seperate[3]);
         */
 
-        DuckState initial = new DuckState(2, 3, 0, 3);
+        DuckState initial = new DuckState(7, 4, 3, 5);
 
         Node Project1 = new Node(initial, null);
-        System.out.println(Project1.breadthFirstSearch());
+        System.out.println(Project1.bestFirstSearch());
         
 
     }

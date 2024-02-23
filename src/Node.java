@@ -6,10 +6,10 @@ import java.util.PriorityQueue;
 import java.lang.Comparable;
 
 public class Node<E> {
-    public DuckState state;
-    public Node<E> parent;
-    public Action action;
-    public int pathCost;
+    private DuckState state;
+    private Node<E> parent;
+    private Action action;
+    private int pathCost;
     // private Node<E> stateNode; //= new Node<E>(state, parent);
     private LinkedQueue frontier = new LinkedQueue<>();
     private HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a set bc as the algorithms progresses through
@@ -52,16 +52,16 @@ public class Node<E> {
         }
 
         /*
-         * public List<DuckState> energySwapAction(int duck1Index, int duck2Index) {
+         * public List<DuckState> energySwapAction(int energyFromDuckIndex, int energyToDuckIndex) {
          * DuckState newState = new DuckState(state.getDuckCounter(),
          * state.getNumofPos(), state.getDuckWithCap(),
          * state.getmaxEnergy());
-         * if (duck1Index < 0 || duck1Index >= newState.getNumofPos() ||
-         * duck2Index < 0 || duck2Index >= newState.getNumofPos()) {
+         * if  energyFromDuckIndex < 0 || energyFromDuckIndex >= newState.getNumofPos() ||
+         * energyToDuckIndex < 0 || energyToDuckIndex >= newState.getNumofPos()) {
          * return null;
          * }
-         * Duck d1 = newState.getDucks()[duck1Index];
-         * Duck d2 = newState.getDucks()[duck2Index];
+         * Duck d1 = newState.getDucks() energyFromDuckIndex];
+         * Duck d2 = newState.getDucks() energyToDuckIndex];
          * 
          * if (d1.getEnergy() > 0) {
          * d1.transferEnergy(d2);
@@ -78,11 +78,18 @@ public class Node<E> {
          */
     }
 
+    private int getPathCost(){
+        return this.pathCost;
+    }
+
     private boolean canMoveLeft(Duck duck, DuckState state) {
         int middle = state.getNumofPos() / 2;
         if (duck.getPosition() < state.getNumofPos()-1 && duck.getEnergy() > 0) {
-            if (duck.getPosition() <= middle || duck.hasCap()) {
-                return true;
+            if (duck.getPosition() <= middle+1 || duck.hasCap()) {
+                if(duck.getPosition()+1 == state.getNumofPos()-1 && !duck.hasCap()){
+                    return false;
+            }
+            return true;
             }
         }
         return false;
@@ -94,7 +101,7 @@ public class Node<E> {
         if (duck.getPosition() < state.getNumofPos() && duck.getEnergy() > 0 && duck.getPosition() != 0) {
             // then check if the duck has a flag or that the ducks without the cap are on
             // the right side of the board
-            if (duck.hasFlag() || duck.hasCap() || duck.getPosition() <= middle && !duck.hasCap()) {
+            if (duck.hasFlag() || duck.hasCap() || duck.getPosition() <= middle+1 && !duck.hasCap()) {
                 // then they're able to move
                 return true;
             }
@@ -102,15 +109,14 @@ public class Node<E> {
         return false;
     }
 
-    public boolean canTransferEnergy(Duck duck1, Duck duck2, DuckState currentState) {
-        // If the two ducks are within the range and have enrgy and are above each other
+    public boolean canTransferEnergy(Duck energyFromDuck, Duck energyToDuck, DuckState currentState) {
+        // If the two ducks are within the range and have enough energy to commit/receive and are above each other
         // then they can transfer energy
-        if (duck1.getPosition() == duck2.getPosition() && duck1.getEnergy() > 0 && duck2.getEnergy() > 0
-                && duck1.getPosition() >= 0 && duck1.getPosition() < currentState.getNumofPos()
-                && duck2.getPosition() >= 0 && duck2.getPosition() < currentState.getNumofPos()) {
+        if (energyFromDuck.getPosition() == energyToDuck.getPosition() && energyFromDuck.getEnergy() > 0 && energyToDuck.getEnergy() >= 0
+                && energyFromDuck.getPosition() >= 0 && energyFromDuck.getPosition() < currentState.getNumofPos()
+                && energyToDuck.getPosition() >= 0 && energyToDuck.getPosition() < currentState.getNumofPos()) {
             // If they both have MAX energy then no transfer is available
-            if (duck1.getEnergy() < currentState.getmaxEnergy() && duck2.getEnergy() <= currentState.getmaxEnergy() 
-            || duck2.getEnergy() < currentState.getmaxEnergy() && duck1.getEnergy() <= currentState.getmaxEnergy()) {
+            if (energyFromDuck.getEnergy() <= currentState.getmaxEnergy() && energyToDuck.getEnergy() < currentState.getmaxEnergy()) {
                 return true;
             } 
         }
@@ -132,14 +138,17 @@ public class Node<E> {
             }
         }
         for (int i = 0; i < ducks.length; i++) {
-            Duck duck1 = ducks[i];
+            Duck energyFromDuck = ducks[i];
             for (int j = 0; j < ducks.length; j++) {
                 if (i == j) { // a case to make sure that it is not transferring energy to itself
+                    // all while also checking to see if the ducks are adjacent
                     continue;
                 }
-                Duck duck2 = ducks[j];
-                if (canTransferEnergy(duck1, duck2, currenState)) {
-                    actions.add(new Action("t->", i, j));
+                if ((i+1 == (j)) || (i-1 == (j))) {
+                    Duck energyToDuck = ducks[j];
+                    if (canTransferEnergy(energyFromDuck, energyToDuck, currenState)) {
+                        actions.add(new Action("t->", i, j));
+                    }
                 }
             }
         }
@@ -194,28 +203,35 @@ public class Node<E> {
      */
 
     private String getPath(Node<E> completedNode) { // This node reached the goal
-        String goalPath = "";
-        List<Node<E>> pathNodes = new ArrayList<>();
-        pathNodes = getPathRecursive(completedNode, pathNodes);
+        String goalPath = ""; // Declare our goalPath string
+        List<Node<E>> pathNodes = new ArrayList<>(); // initialize our path via nodes as a list
+        pathNodes = getPathRecursive(completedNode, pathNodes); // retrieve the path via nodes from the method using the completedNode and the empty list
         for (int i = 0; i < pathNodes.size(); i++) {
-            Node<E> pathNode = pathNodes.get(i);
-            if (pathNode.action.type.equals("L") || pathNode.action.type.equals("R")) {
-                goalPath += pathNode.action.type + pathNode.action.duckNumber;
+            Node<E> pathNode = pathNodes.get(i); // retrieve each path
+            if(pathNode.pathCost==0){ // if pathNode is initial state node or there was no action
+                goalPath += ""; // then do nothing
             }
-            if (pathNode.action.type.equals("t->")) {
-                goalPath += pathNode.action.duckNumber + pathNode.action.type + pathNode.action.receiverDuckNumber;
+            // else if the action is a horizontal move, left or right
+            else if (pathNode.action.type.equals("L") || pathNode.action.type.equals("R")) {
+                goalPath += pathNode.action.type + pathNode.action.duckNumber + " "; // then append the action type (Left or Right) with the duck's number
+            }
+            // else if the action is a transfer
+            else if (pathNode.action.type.equals("t->")) { 
+                // then append the transmitter duck's number with the transfer action type to the receiver duck's number
+                goalPath += pathNode.action.duckNumber + pathNode.action.type + pathNode.action.receiverDuckNumber + " ";
             }
         }
         return goalPath;
     }
 
     private List<Node<E>> getPathRecursive(Node<E> current, List<Node<E>> path) {
-        if (current.parent == null) { // first/initial node
-            path.add(0, current);
+        if (current.parent == null) { // if the node is the initial state node
+            path.add(0, current); //  then we can add that to the beginning of our path 
             return path;
         }
-        path.add(0, current);
-        getPathRecursive(current.parent, path);
+        // else the node is backtracing to the intial state node
+        path.add(0, current); // add the current node to the beginning of the path, almost backwards 
+        getPathRecursive(current.parent, path); // finally, recall the function but with the parent and the path list of nodes
         return path;
     }
 
@@ -302,12 +318,12 @@ public class Node<E> {
          */
     }
 
-    public DuckState bestfirstsearch() {
-        Node<E> goalNode = bestfirstsearchhelper();
-        if (goalNode == null) {
-            return null;
+    public String bestFirstSearch() {
+        Node<E> completedNode = bestfirstsearchhelper();
+        if (completedNode == null) {
+            return "failure";
         } else {
-            return goalNode.state;
+            return getPath(completedNode);
         }
     }
 
@@ -321,12 +337,11 @@ public class Node<E> {
             if (this.isGoal(currentNode.state)) {
                 return currentNode;
             }
-            List<Node<E>> child = expand(currentNode);
-            for (Node<E> newchild : child) {
-                DuckState childstate = newchild.state;
-                if (!reach.containsKey(childstate)) {
-                    reach.put(childstate, newchild);
-                    frontier.enqueue(newchild);
+            for(Node<E> child  : expand(currentNode)) {
+                DuckState childState = child.state;
+                if (!reach.containsKey(childState) || child.getPathCost() < reach.get(childState).getPathCost()){
+                    reach.put(childState, child);
+                    frontier.enqueue(child);
                 }
             }
         }
@@ -346,6 +361,7 @@ public class Node<E> {
             if (goalStateDuck.hasCap()) {
                 goalStateDuck.pickUpFlag();
             }
+            goalStateDuck.setEnergy(0);
         }
         return goalState.equals(state);
         /*

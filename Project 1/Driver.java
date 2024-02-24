@@ -33,8 +33,8 @@ public class Driver {
         DuckState initial = new DuckState(duckCounter, numofpositions, duckwithcap, maxEnergy); // Our starting state
 
         Node Project1 = new Node(initial, null); // Creates our first node
-        System.out.println(Project1.bestFirstSearch());
-        System.out.println(Project1.breadthFirstSearch());
+        //System.out.println(Project1.bestFirstSearch());
+        //System.out.println(Project1.breadthFirstSearch());
         System.out.println(Project1.aStarSearch()); 
         
 

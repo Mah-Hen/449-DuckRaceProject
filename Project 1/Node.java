@@ -13,7 +13,7 @@ public class Node<E> implements Comparable<Node<E>> {
     private int h_cost; // heuristic function cost
     private int f_cost; // g_cost + h_cost
     //private int limiter = 0;
-    //private Random rand = new Random();
+    private Random rand = new Random();
     private LinkedQueue frontier = new LinkedQueue<>();
     private HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a set bc as the algorithms progresses through
     // there's no telling of
@@ -283,7 +283,7 @@ private Node<E> breadthFirstSearchHelper() {
     if (this.isGoal(initial.state)) { // if initial state is goal then return state space/node
         return initial;
     }
-    int limiter = 1000;
+    int limiter = rand.nextInt(10000);
     if (reach.size() >= limiter) {
         return null;
     }
@@ -321,7 +321,7 @@ private Node<E> bestfirstsearchhelper() {
         if (this.isGoal(currentNode.state)) { // If the initial state equals the goal then return that state
             return currentNode;
         }
-        int limiter = 100;
+        int limiter = rand.nextInt(10000);
         if (currentNode.getPathCost() >= limiter) {
             return null;
         }
@@ -354,14 +354,15 @@ private Node<E> aStarSearchHelper() {
     if (pQueue.isEmpty()) {
         return null;
     }
-    int limiter = 100;
-    if (pQueue.size() >= limiter) {
-        return null;
-    }
+
     while (!pQueue.isEmpty()) {
         Node<E> currentNode = (Node<E>) pQueue.poll();
         if (this.isGoal(currentNode.state)) {
             return currentNode;
+        }
+        int limiter = rand.nextInt(100000000);
+        if (pQueue.size() >= limiter) {
+            return null;
         }
         for (Node<E> child : expand(currentNode)) {
             DuckState childState = child.state;

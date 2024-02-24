@@ -32,7 +32,8 @@ public class Driver {
 
         DuckState initial = new DuckState(2, 3, 0, 3);
 
-        Node<DuckState> Project1 = new Node<DuckState>(initial, null);
+        Node<DuckState> Project1 = new Node<>(initial, null);
+        //System.out.println(Project1.breadthFirstSearch());
         System.out.println(Project1.aStarSearch());
         
 

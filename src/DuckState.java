@@ -1,6 +1,6 @@
 import java.util.List;
 
-public class DuckState{
+public class DuckState implements Comparable<DuckState>{
     private Duck[] ducks; // ducks
     private int duckCounter; // How many ducks are there
     private int maxEnergy; // maxEnergy
@@ -75,6 +75,21 @@ public class DuckState{
         }
         return false;
     }
+    
+
+    @Override
+    public int compareTo(DuckState oState) {
+        int count = 0;
+        for(int i =0; i<this.duckCounter;i++){
+            Duck duck = this.getDuck(i);
+            Duck duck2 = oState.getDuck(i);
+            if(duck.compareTo(duck2)){
+                count++;
+            }
+        }
+        return(Integer.valueOf(count).compareTo(Integer.valueOf(this.duckCounter)));
+    }
+
 
     
 }

@@ -2,9 +2,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.lang.Comparable;
 
-public class Node<E> {
+public class Node<E> implements Comparable<Node<E>> {
     private DuckState state;
     private Node<E> parent;
     private Action action;
@@ -405,10 +404,10 @@ public class Node<E> {
         int limiter = 0;
         PriorityQueue<Node<E>> frontier = new PriorityQueue<>(); // frontier
         Node<E> intialNode = new Node<>(this.state, null);
+        intialNode.setHeursticCost(this.heuristicFunction(this.state));
+        intialNode.setTotalCost(intialNode.getHeursticCost() + intialNode.getPathCost()); // f(x) = h(x) + g(x)
         frontier.add(intialNode);
-        if (frontier.isEmpty()) {
-            return null;
-        }
+    
         while (!frontier.isEmpty()) {
             Node<E> currentNode = (Node<E>) frontier.poll();
             if (this.isGoal(currentNode.state)) {
@@ -416,13 +415,11 @@ public class Node<E> {
             }
             for (Node<E> child : expand(currentNode)) {
                 DuckState childState = child.state;
-                if (reach.containsKey(childState) && child.getPathCost() < reach.get(childState).getPathCost()) {
+                if (!reach.containsKey(childState) || child.compareTo(reach.get(childState)) < 0) {
                     reach.put(childState, child);
-                }
                     child.setHeursticCost(this.heuristicFunction(childState));
                     child.setTotalCost(child.getHeursticCost() + child.getPathCost()); // f(x) = h(x) + g(x)
-                    if(frontier.peek()==null || child.getTotalCost()<frontier.peek().getTotalCost() ){
-                        frontier.add(child);
+                    frontier.add(child);
                 }
             }
         }
@@ -459,8 +456,9 @@ public class Node<E> {
         return goalState.equals(state);
     }
 
-    public int compareTo(Node<E> o) {
-        return Integer.compare(this.getTotalCost(), o.getTotalCost()); // Compares the value of the total cost between two variables
+    @Override
+    public int compareTo(Node<E> oNode) {
+        return Integer.compare(this.getTotalCost(), oNode.getTotalCost()); // Compares the value of the total cost between two variables
     } 
 }
         /*

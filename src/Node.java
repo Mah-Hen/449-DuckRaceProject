@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.lang.Comparable;
@@ -15,7 +14,7 @@ public class Node<E> {
     // private Node<E> stateNode; //= new Node<E>(state, parent);
     private LinkedQueue frontier = new LinkedQueue<>();
     private HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a set bc as the algorithms progresses through
-                                                                 // there's no telling of
+    // there's no telling of
     // quantity of nodes
 
     @SuppressWarnings("unchecked")
@@ -154,10 +153,10 @@ public class Node<E> {
         for (int i = 0; i < ducks.length; i++) { // iterate through list of ducks
             Duck duck = ducks[i]; //
             if (canMoveLeft(duck, currenState)) {
-                actions.add(new Action("L", i)); // So duck0 or the duck at pos/row 0 can move left
+                actions.add(new Action("L", i)); // So the duck at pos/row 0 can move left
             }
             if (canMoveRight(duck, currenState)) {
-                actions.add(new Action("R", i));
+                actions.add(new Action("R", i)); // duck can move right
             }
         }
         for (int i = 0; i < ducks.length; i++) {
@@ -167,10 +166,10 @@ public class Node<E> {
                     // all while also checking to see if the ducks are adjacent
                     continue;
                 }
-                if ((i + 1 == (j)) || (i - 1 == (j))) {
+                if ((i + 1 == (j)) || (i - 1 == (j))) { // if the ducks are right on top of each other
                     Duck energyToDuck = ducks[j];
                     if (canTransferEnergy(energyFromDuck, energyToDuck, currenState)) {
-                        actions.add(new Action("t->", i, j));
+                        actions.add(new Action("t->", i, j)); // can transfer energy
                     }
                 }
             }
@@ -189,10 +188,10 @@ public class Node<E> {
                 Duck prevStateDuck = currentState.getDuck(i);
                 ducks[i] = new Duck(prevStateDuck.getName(), prevStateDuck.hasFlag(), prevStateDuck.getEnergy(),
                         prevStateDuck.hasCap(), prevStateDuck.getPosition()); // and alter the currentState to match the
-                                                                              // previous state. We don't want to
-                                                                              // reference the previous state and
-                                                                              // creating a new instance requires an
-                                                                              // update.
+                // previous state. We don't want to
+                // reference the previous state and
+                // creating a new instance requires an
+                // update.
             } // Everytime we alter the currentState in the result method, it will alter the
               // reference variable and even take that modification past this method.
         }
@@ -202,8 +201,8 @@ public class Node<E> {
             duck.decreaseEnergy(); // then decrease the duck's energy
             duck.incPosition(); // move its position left
             if (duck.getPosition() == currentState.getNumofPos() - 1 && duck.hasCap()) { // All while checking to see if
-                                                                                         // the duck with cap made it to
-                                                                                         // the end
+            // the duck with cap made it to
+            // the end
                 duck.pickUpFlag(); // to retrieve the flag
             }
         } else if (action.type.equals("R")) { // If canMoveRight
@@ -211,7 +210,7 @@ public class Node<E> {
             duck.decPosition(); // move its position left
         } else if (action.type.equals("t->")) { // If can't move right or left then can only Transfer.
             Duck receiverDuck = changedState.getDuck(action.receiverDuckNumber); // Receive the receiver duck based on
-                                                                                 // the action type receiver duck number
+            // the action type receiver duck number
             duck.transferEnergy(receiverDuck); // commit the energy transfer from current duck to receiver duck
         }
         return changedState;
@@ -237,7 +236,7 @@ public class Node<E> {
         String goalPath = ""; // Declare our goalPath string
         List<Node<E>> pathNodes = new ArrayList<>(); // initialize our path via nodes as a list
         pathNodes = getPathRecursive(completedNode, pathNodes); // retrieve the path via nodes from the method using the
-                                                                // completedNode and the empty list
+        // completedNode and the empty list
         for (int i = 0; i < pathNodes.size(); i++) {
             Node<E> pathNode = pathNodes.get(i); // retrieve each path
             if (pathNode.pathCost == 0) { // if pathNode is initial state node or there was no action
@@ -246,15 +245,15 @@ public class Node<E> {
             // else if the action is a horizontal move, left or right
             else if (pathNode.action.type.equals("L") || pathNode.action.type.equals("R")) {
                 goalPath += pathNode.action.type + pathNode.action.duckNumber + " "; // then append the action type
-                                                                                     // (Left or Right) with the duck's
-                                                                                     // number
+            // (Left or Right) with the duck's
+            // number
             }
             // else if the action is a transfer
             else if (pathNode.action.type.equals("t->")) {
                 // then append the transmitter duck's number with the transfer action type to
                 // the receiver duck's number
                 goalPath += pathNode.action.duckNumber + pathNode.action.type + pathNode.action.receiverDuckNumber
-                        + " ";
+                + " ";
             }
         }
         return goalPath;
@@ -268,24 +267,24 @@ public class Node<E> {
         // else the node is backtracing to the intial state node
         path.add(0, current); // add the current node to the beginning of the path, almost backwards
         getPathRecursive(current.parent, path); // finally, recall the function but with the parent and the path list of
-                                                // nodes
+        // nodes
         return path;
     }
 
     private List<Node<E>> expand(Node<E> current) {
         DuckState currentState = new DuckState(current.state.getDuckCounter(), current.state.getNumofPos(),
                 current.state.getDuckWithCap(), current.state.getmaxEnergy());// current.state; // +1 because the
-                                                                              // constructor takes 1 one away.
+                // constructor takes 1 one away.
         Duck[] ducks = currentState.getDucks();
         if (!currentState.equals(current.state)) { // If the two states do not have the same state
             for (int i = 0; i < currentState.getDuckCounter(); i++) { // then loop through each duck
                 Duck prevStateDuck = current.state.getDuck(i);
                 ducks[i] = new Duck(prevStateDuck.getName(), prevStateDuck.hasFlag(), prevStateDuck.getEnergy(),
                         prevStateDuck.hasCap(), prevStateDuck.getPosition()); // and alter the currentState to match the
-                                                                              // previous state. We don't want to
-                                                                              // reference the previous state and
-                                                                              // creating a new instance requires an
-                                                                              // update.
+            // previous state. We don't want to
+        // reference the previous state and
+            // creating a new instance requires an
+            // update.
             } // Everytime we alter the currentState in the expand method, it will alter the
               // reference variable and even take that modification past this method.
         }
@@ -293,7 +292,7 @@ public class Node<E> {
         List<Node<E>> successorNodes = new ArrayList<>(); // Create a list of successorNodes
 
         for (Action action : generateActions(currentState)) { // Loop through each generated action from the newly
-                                                              // updated current state
+            // updated current state
             DuckState changedState = result(currentState, action);
             int cost = current.pathCost + 1;// actionCost(currentState, action, changedState);
             Node<E> succesorNode = new Node<E>(changedState, current, action,
@@ -327,13 +326,13 @@ public class Node<E> {
         }
         while (!(this.frontier.isEmpty())) {
             Node<E> currentNode = (Node<E>) frontier.dequeue(); // Node
-            for (Node<E> child : expand(currentNode)) {
+            for (Node<E> child : expand(currentNode)) { // iterate over each child that was generated from the currentNode
                 DuckState nodeState = (DuckState) child.state;
-                if (this.isGoal(nodeState)) {
+                if (this.isGoal(nodeState)) { // state is goal
                     return child; // nodeState/Child same thing. Can change later
                 } else {
-                    this.reach.put(nodeState, child);
-                    this.frontier.enqueue(child);
+                    this.reach.put(nodeState, child); // if not then put the nodeState with the childNode inside the reach
+                    this.frontier.enqueue(child); // load the child to the frontier to be later expanded
                 }
             }
         }
@@ -364,8 +363,8 @@ public class Node<E> {
 
     public String bestFirstSearch() {
         Node<E> completedNode = bestfirstsearchhelper();
-        if (completedNode == null) {
-            return "failure";
+        if (completedNode == null) { // if Node is null
+            return "failure"; // then failure
         } else {
             return getPath(completedNode);
         }
@@ -384,41 +383,51 @@ public class Node<E> {
             for (Node<E> child : expand(currentNode)) {
                 DuckState childState = child.state;
                 if (!reach.containsKey(childState) || child.getPathCost() < reach.get(childState).getPathCost()) {
-                    reach.put(childState, child);
-                    frontier.enqueue(child);
+                    // If the reach doesnt have the childs state or its path cost less than the reaches childstate path
+                    reach.put(childState, child); // Adds the child and its state to the hashmap
+                    frontier.enqueue(child); // Adds the child to the frontier
                 }
             }
         }
         return null;
     }
 
+    public String aStarSearch(){
+        Node<E> completedNode = aStarSearchHelper();
+        if (completedNode == null) {
+            return "failure";
+        } else {
+            return getPath(completedNode);
+        }
+    }
+
     private Node<E> aStarSearchHelper() {
-        PriorityQueue<Node<E>> pQueue = new PriorityQueue<>(); // frontier
+        int limiter = 0;
+        PriorityQueue<Node<E>> frontier = new PriorityQueue<>(); // frontier
         Node<E> intialNode = new Node<>(this.state, null);
-        pQueue.add(intialNode);
-        if (pQueue.isEmpty()) {
+        frontier.add(intialNode);
+        if (frontier.isEmpty()) {
             return null;
         }
-        while (!pQueue.isEmpty()) {
-            Node<E> currentNode = (Node<E>) pQueue.poll();
+        while (!frontier.isEmpty()) {
+            Node<E> currentNode = (Node<E>) frontier.poll();
             if (this.isGoal(currentNode.state)) {
                 return currentNode;
             }
             for (Node<E> child : expand(currentNode)) {
                 DuckState childState = child.state;
-                if (!reach.containsKey(childState) || child.getPathCost() < reach.get(childState).getPathCost()) {
+                if (reach.containsKey(childState) && child.getPathCost() < reach.get(childState).getPathCost()) {
                     reach.put(childState, child);
-                    frontier.enqueue(child);
-                    child.setHeursticCost(heuristicFunction(childState));
-                    child.setTotalCost(child.h_cost + child.getPathCost());
-                    for (Node<E> stateNode : pQueue) {
-                        if (child.getTotalCost() > stateNode.getTotalCost()) {
-                            pQueue.add(child);
-                        }
-                    }
+                }
+                    child.setHeursticCost(this.heuristicFunction(childState));
+                    child.setTotalCost(child.getHeursticCost() + child.getPathCost()); // f(x) = h(x) + g(x)
+                
+                    if(child.getTotalCost()>frontier.peek().getTotalCost()){
+                    frontier.add(child);
                 }
             }
         }
+        
         return null;
     }
 
@@ -449,6 +458,12 @@ public class Node<E> {
             }
         }
         return goalState.equals(state);
+    }
+
+    public int compareTo(Node<E> o) {
+        return Integer.compare(this.getTotalCost(), o.getTotalCost()); // Compares the value of the total cost between two variables
+    } 
+}
         /*
          * Duck[] ducks = State.getDucks();
          * int counter = 0;
@@ -465,7 +480,3 @@ public class Node<E> {
          * return true;
          * }
          */
-
-    }
-
-}

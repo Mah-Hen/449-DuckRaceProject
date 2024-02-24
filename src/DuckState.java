@@ -1,3 +1,10 @@
+/* 
+ @Authors: Mahlaki Henry and Jahlil Owens
+ @ Date: 2/23/24
+@ Title: DuckState
+ This is our original work
+*/
+
 import java.util.List;
 
 public class DuckState implements Comparable<DuckState>{

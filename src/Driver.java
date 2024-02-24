@@ -1,3 +1,10 @@
+/* 
+ @Authors: Mahlaki Henry and Jahlil Owens
+ @ Date: 2/23/24
+@ Title: Driver
+ This is our original work
+*/
+
 import java.util.Scanner;
 
 public class Driver {
@@ -30,10 +37,10 @@ public class Driver {
         int maxEnergy = Integer.parseInt(seperate[3]);
         */
 
-        DuckState initial = new DuckState(3, 4, 0, 4);
+        DuckState initial = new DuckState(3, 3, 0, 3);
 
         Node<DuckState> Project1 = new Node<>(initial, null);
-        //System.out.println(Project1.breadthFirstSearch());
+        //System.out.println(Project1.bestFirstSearch());
         System.out.println(Project1.aStarSearch());
         
 

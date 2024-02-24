@@ -1,3 +1,9 @@
+/* 
+ @Authors: Mahlaki Henry and Jahlil Owens
+ @ Date: 2/23/24
+@ Title: LinkedQueue
+ This is our original work
+*/
 public class LinkedQueue<E> {
 	private class Node<E> {
 		public E data; // data

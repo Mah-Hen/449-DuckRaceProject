@@ -1,3 +1,9 @@
+/* 
+ @Authors: Mahlaki Henry and Jahlil Owens
+ @ Date: 2/23/24
+@ Title: Duck
+ This is our original work
+*/
 public class Duck{ 
     private int name;
     private boolean flag = false; // 

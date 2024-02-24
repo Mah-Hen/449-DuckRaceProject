@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.lang.Comparable;
+import java.util.Random;
 
 public class Node<E> implements Comparable<Node<E>> {
     private DuckState state;
@@ -11,6 +12,8 @@ public class Node<E> implements Comparable<Node<E>> {
     private int pathCost; // g Cost
     private int h_cost; // heuristic function cost
     private int f_cost; // g_cost + h_cost
+    //private int limiter = 0;
+    //private Random rand = new Random();
     private LinkedQueue frontier = new LinkedQueue<>();
     private HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a set bc as the algorithms progresses through
     // there's no telling of
@@ -227,7 +230,7 @@ private List<Node<E>> getPathRecursive(Node<E> current, List<Node<E>> path) {
     return path;
 }
 
-private List<Node<E>> expand(Node<E> current, int limiter) {
+private List<Node<E>> expand(Node<E> current) {
     DuckState currentState = new DuckState(current.state.getDuckCounter(), current.state.getNumofPos(),
     current.state.getDuckWithCap(), current.state.getmaxEnergy());// current.state; // +1 because the
     // constructor takes 1 one away.
@@ -249,9 +252,6 @@ private List<Node<E>> expand(Node<E> current, int limiter) {
     
     for (Action action : generateActions(currentState)) { // Loop through each generated action from the newly
         // updated current state
-        if (current.getPathCost() >= limiter) {
-            continue;
-        }
         DuckState changedState = result(currentState, action);
         int cost = current.pathCost + 1;// actionCost(currentState, action, changedState);
         Node<E> succesorNode = new Node<E>(changedState, current, action,
@@ -262,8 +262,8 @@ private List<Node<E>> expand(Node<E> current, int limiter) {
     
 }
 
-public String breadthFirstSearch(int limiter) {
-    Node<E> completeNode = breadthFirstSearchHelper(limiter); // the node that completed the puzzle or reached the goal
+public String breadthFirstSearch() {
+    Node<E> completeNode = breadthFirstSearchHelper(); // the node that completed the puzzle or reached the goal
     // test case for now. We can update it later by making a new node and adding
     // Failure as the data.
     if (completeNode == null) {
@@ -275,7 +275,7 @@ public String breadthFirstSearch(int limiter) {
 }
 
 @SuppressWarnings("unchecked")
-private Node<E> breadthFirstSearchHelper(int limiter) {
+private Node<E> breadthFirstSearchHelper() {
     // O(N)
     // Starts at the root node, check is goal.
     Node<E> initial = new Node<E>(this.state, null); // initial state
@@ -283,9 +283,13 @@ private Node<E> breadthFirstSearchHelper(int limiter) {
     if (this.isGoal(initial.state)) { // if initial state is goal then return state space/node
         return initial;
     }
+    int limiter = 1000;
+    if (reach.size() >= limiter) {
+        return null;
+    }
     while (!(this.frontier.isEmpty())) {
         Node<E> currentNode = (Node<E>) frontier.dequeue(); // Node
-        for (Node<E> child : expand(currentNode, limiter)) {
+        for (Node<E> child : expand(currentNode)) {
             DuckState nodeState = (DuckState) child.state;
             if (this.isGoal(nodeState)) {
                 return child; // nodeState/Child same thing. Can change later
@@ -298,8 +302,8 @@ private Node<E> breadthFirstSearchHelper(int limiter) {
     return null; // failure
 }
 
-public String bestFirstSearch(int limiter) {
-    Node<E> completedNode = bestfirstsearchhelper(limiter);
+public String bestFirstSearch() {
+    Node<E> completedNode = bestfirstsearchhelper();
     if (completedNode == null) {
         return "failure";
     } else {
@@ -308,7 +312,7 @@ public String bestFirstSearch(int limiter) {
 }
 
 @SuppressWarnings("unchecked")
-private Node<E> bestfirstsearchhelper(int limiter) {
+private Node<E> bestfirstsearchhelper() {
     if (frontier.isEmpty()) {
         return null;
     }
@@ -317,7 +321,11 @@ private Node<E> bestfirstsearchhelper(int limiter) {
         if (this.isGoal(currentNode.state)) { // If the initial state equals the goal then return that state
             return currentNode;
         }
-        for (Node<E> child : expand(currentNode, limiter)) {
+        int limiter = 100;
+        if (currentNode.getPathCost() >= limiter) {
+            return null;
+        }
+        for (Node<E> child : expand(currentNode)) {
             DuckState childState = child.state;
             if (!reach.containsKey(childState) || child.getPathCost() < reach.get(childState).getPathCost()) { 
                 // If the reach doesnt have the childs state or its path cost less than the reaches childstate path
@@ -329,8 +337,8 @@ private Node<E> bestfirstsearchhelper(int limiter) {
     return null;
 }
 
-public String aStarSearch(int limiter) {
-    Node<E> reachnode = aStarSearchHelper(limiter);
+public String aStarSearch() {
+    Node<E> reachnode = aStarSearchHelper();
     if (reachnode == null) {
         return "Failure: No Path Found.";
     } else {
@@ -339,11 +347,15 @@ public String aStarSearch(int limiter) {
 }
 
 @SuppressWarnings("unchecked")
-private Node<E> aStarSearchHelper(int limiter) {
+private Node<E> aStarSearchHelper() {
     PriorityQueue<Node<E>> pQueue = new PriorityQueue<>(); // frontier
     Node<E> intialNode = new Node<>(this.state, null);
     pQueue.add(intialNode); // Adds the initial node to the queue
     if (pQueue.isEmpty()) {
+        return null;
+    }
+    int limiter = 100;
+    if (pQueue.size() >= limiter) {
         return null;
     }
     while (!pQueue.isEmpty()) {
@@ -351,7 +363,7 @@ private Node<E> aStarSearchHelper(int limiter) {
         if (this.isGoal(currentNode.state)) {
             return currentNode;
         }
-        for (Node<E> child : expand(currentNode, limiter)) {
+        for (Node<E> child : expand(currentNode)) {
             DuckState childState = child.state;
             if (!reach.containsKey(childState) || child.getPathCost() < reach.get(childState).getPathCost()) {
                 reach.put(childState, child);
@@ -401,5 +413,4 @@ private Node<E> aStarSearchHelper(int limiter) {
         return Integer.compare(this.getTotalCost(), o.getTotalCost()); // Compares the value of the total cost between two variables
 
     }
-    
 }

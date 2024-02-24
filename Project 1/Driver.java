@@ -35,7 +35,7 @@ public class Driver {
         Node Project1 = new Node(initial, null); // Creates our first node
         System.out.println(Project1.bestFirstSearch());
         System.out.println(Project1.breadthFirstSearch());
-        System.out.println(Project1.aStarSearch()); // 
+        System.out.println(Project1.aStarSearch()); 
         
 
     }

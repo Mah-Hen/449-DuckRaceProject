@@ -421,9 +421,8 @@ public class Node<E> {
                 }
                     child.setHeursticCost(this.heuristicFunction(childState));
                     child.setTotalCost(child.getHeursticCost() + child.getPathCost()); // f(x) = h(x) + g(x)
-                
-                    if(child.getTotalCost()>frontier.peek().getTotalCost()){
-                    frontier.add(child);
+                    if(frontier.peek()==null || child.getTotalCost()<frontier.peek().getTotalCost() ){
+                        frontier.add(child);
                 }
             }
         }

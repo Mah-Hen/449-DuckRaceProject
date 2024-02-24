@@ -72,6 +72,6 @@ public class LinkedQueue<E> {
 			}
 			return s;
 		}
-	}
+	}//change
 
 

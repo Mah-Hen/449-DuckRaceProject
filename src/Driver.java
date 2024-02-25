@@ -37,11 +37,11 @@ public class Driver {
         int maxEnergy = Integer.parseInt(seperate[3]);
         */
 
-        DuckState initial = new DuckState(3, 3, 0, 3);
-
+        DuckState initial = new DuckState(4, 4, 1, 4);
         Node<DuckState> Project1 = new Node<>(initial, null);
-        //System.out.println(Project1.bestFirstSearch());
-        System.out.println(Project1.aStarSearch());
+        System.out.printf("Breadth-First Search:\n%s\n", Project1.breadthFirstSearch());
+        System.out.printf("Best-First Search:\n%s\n", Project1.bestFirstSearch());
+        System.out.printf("A* Search: \n%s", Project1.aStarSearch());
         
 
     }

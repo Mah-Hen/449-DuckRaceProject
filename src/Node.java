@@ -19,8 +19,6 @@ public class Node<E> implements Comparable<Node<E>> {
     private int h_cost; // heuristic function cost
     private int f_cost; // g_cost + h_cost
     // private Node<E> stateNode; //= new Node<E>(state, parent);
-    private LinkedQueue frontier = new LinkedQueue<>();
-    private HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a set bc as the algorithms progresses through
     // there's no telling of
     // quantity of nodes
 
@@ -29,8 +27,6 @@ public class Node<E> implements Comparable<Node<E>> {
         this.state = initial; // intialize intial state
         this.parent = parent; // initialize state parent
         this.pathCost = 0;
-        // this.stateNode = new Node<E>(initial, null); // Initial state/node
-        frontier.enqueue(this);
 
     }
 
@@ -128,7 +124,7 @@ public class Node<E> implements Comparable<Node<E>> {
         if (duck.getPosition() < state.getNumofPos() && duck.getEnergy() > 0 && duck.getPosition() != 0) {
             // then check if the duck has a flag or that the ducks without the cap are on
             // the right side of the board
-            if (duck.hasFlag() || duck.getPosition() <= middle + 1 && !duck.hasCap()) {
+            if (duck.hasFlag() || (duck.getPosition() <= middle + 1 && !duck.hasCap())) {
                 // then they're able to move
                 return true;
             }
@@ -154,6 +150,7 @@ public class Node<E> implements Comparable<Node<E>> {
 
     }
 
+    
     private List<Action> generateActions(DuckState currenState) {
         List<Action> actions = new ArrayList<>(); // Create list of actions
         Duck[] ducks = currenState.getDucks(); // Retrieve list of ducks
@@ -169,6 +166,8 @@ public class Node<E> implements Comparable<Node<E>> {
         }
         for (int i = 0; i < ducks.length; i++) {
             Duck energyFromDuck = ducks[i];
+            if(energyFromDuck.hasFlag()) // duckWithFlag should not transfer energy. Helps limit options in the search space
+                continue;
             for (int j = 0; j < ducks.length; j++) {
                 if (i == j) { // a case to make sure that it is not transferring energy to itself
                     // all while also checking to see if the ducks are adjacent
@@ -184,7 +183,7 @@ public class Node<E> implements Comparable<Node<E>> {
         }
 
         return actions;
-    }
+    } 
 
     private DuckState result(DuckState currentState, Action action) {
         DuckState changedState = new DuckState(currentState.getDuckCounter(), currentState.getNumofPos(),
@@ -279,6 +278,61 @@ public class Node<E> implements Comparable<Node<E>> {
         return path;
     }
 
+    private boolean shouldPrune(DuckState state){
+        int totalEnergy = 0; // intitialize the total energy
+        int totalDistance = 0; // intitialize the totalDistance
+        int statePosition = state.getNumofPos()-1; /// initialize the number of grid spaces
+        Duck adjacentDuckAbove = null; // initialize the adjacent duck above
+        Duck adjacentDuckBelow = null; // intialize the adjacent duck below
+        
+        if(!(this.state.equals(state))){
+            Duck duckWithCap = state.getDuck(state.getDuckWithCap());
+            if(duckWithCap.getName() == 0){ 
+                // if the duck with cap is 0, use the below duck
+                adjacentDuckBelow = state.getDuck(state.getDuckWithCap()+1);
+                
+            }
+            else{
+                // Duck with cap is not 0, use the above duck
+                adjacentDuckAbove = state.getDuck(state.getDuckWithCap()-1);
+            }
+                // Check if the two/3 ducks have moved or not
+            if(!(duckWithCap.getEnergy() < state.getmaxEnergy()
+            || adjacentDuckBelow != null && adjacentDuckBelow.getEnergy() < state.getmaxEnergy())
+            || adjacentDuckAbove != null && adjacentDuckAbove.getEnergy() < state.getmaxEnergy()){
+                if(duckWithCap.getPosition() == 0 && !duckWithCap.hasFlag())
+                    return true;
+                }
+        }
+
+        for(Duck duck: state.getDucks()){ // for each duck
+            if(duck.hasFlag() || !duck.hasCap()){
+                totalDistance += duck.getPosition(); // calculcate how far from the beginning of the grid
+            } 
+            else{
+                totalDistance += statePosition - duck.getPosition(); // calculate how far from the flag
+                if(duck.hasFlag() && duck.getEnergy()==0){
+                    if(duck.getName() > 0){ // if duckWithCap is not duck 0
+                        adjacentDuckAbove = state.getDuck(state.getDuckWithCap()-1); // retrieve the adjacent duck above the duck with cap
+                        if(adjacentDuckAbove.getEnergy()-(duck.getPosition()-adjacentDuckAbove.getPosition()) == 0){ // see if the adjacents ducks have more than enough energy to move close 
+                            totalEnergy -=1; // if they don't then that is higher chance of pruning
+                        }
+                    }
+                    else{
+                        adjacentDuckBelow = state.getDuck(state.getDuckWithCap()+1); // retrieve the adjacent duck below the duck with cap
+                        if(adjacentDuckBelow.getEnergy()-(duck.getPosition()-adjacentDuckBelow.getPosition())==0){// see if the adjacents ducks have more than enough energy to move close 
+                            totalEnergy -= 1; // if they don't then that is higher chance of pruning
+                        }
+                    } 
+                }
+            }
+        totalEnergy += duck.getEnergy(); // calculate the total energy from each duck for the state
+    
+}
+
+        return totalEnergy < totalDistance; // if a state's totalEnergy is greater than or equal to its distance then it is not a prunable state
+    }
+
     private List<Node<E>> expand(Node<E> current) {
         DuckState currentState = new DuckState(current.state.getDuckCounter(), current.state.getNumofPos(),
                 current.state.getDuckWithCap(), current.state.getmaxEnergy());// current.state; // +1 because the
@@ -290,7 +344,7 @@ public class Node<E> implements Comparable<Node<E>> {
                 ducks[i] = new Duck(prevStateDuck.getName(), prevStateDuck.hasFlag(), prevStateDuck.getEnergy(),
                         prevStateDuck.hasCap(), prevStateDuck.getPosition()); // and alter the currentState to match the
             // previous state. We don't want to
-        // reference the previous state and
+            // reference the previous state and
             // creating a new instance requires an
             // update.
             } // Everytime we alter the currentState in the expand method, it will alter the
@@ -328,25 +382,34 @@ public class Node<E> implements Comparable<Node<E>> {
         // O(N)
         // Starts at the root node, check is goal.
         Random rand = new Random();
+        LinkedQueue frontier = new LinkedQueue<>();
+        HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a map bc as the algorithms progresses through
         Node<E> initial = new Node<E>(this.state, null); // initial state
+        
+        frontier.enqueue(initial);
         reach.put(this.state, initial);
         if (this.isGoal(initial.state)) { // if initial state is goal then return state space/node
             return initial;
         }
-        int limiter = rand.nextInt(4999)+3300;
-        while (!(this.frontier.isEmpty())) {
-            
-            if(this.reach.size() >= limiter){
-                return null;}
+        int limiter = rand.nextInt(45000)+300000;
+        while (!(frontier.isEmpty())) {  
+            if(reach.size() > limiter){
+                return null;
+             }
             Node<E> currentNode = (Node<E>) frontier.dequeue(); // Node
-            for (Node<E> child : expand(currentNode)) { // iterate over each child that was generated from the currentNode
-                DuckState nodeState = (DuckState) child.state;
-                if (this.isGoal(nodeState)) { // state is goal
-                    return child; // nodeState/Child same thing. Can change later
-                } else {
-                    this.reach.put(nodeState, child); // if not then put the nodeState with the childNode inside the reach
-                    this.frontier.enqueue(child); // load the child to the frontier to be later expanded
+            if(!shouldPrune(currentNode.state)){ // if the search should not Prune this state then
+                for (Node<E> child : expand(currentNode)) { // iterate over each child that was generated from the currentNode
+                    DuckState nodeState = (DuckState) child.state;
+                    if (this.isGoal(nodeState)) { // state is goal
+                        return child; // nodeState/Child same thing. Can change later
+                    } else {
+                        reach.put(nodeState, child); // if not then put the nodeState with the childNode inside the reach
+                        frontier.enqueue(child); // load the child to the frontier to be later expanded
+                    }
                 }
+            }
+            else{
+                continue;
             }
         }
         return null; // failure
@@ -386,24 +449,31 @@ public class Node<E> implements Comparable<Node<E>> {
     @SuppressWarnings("unchecked")
     private Node<E> bestfirstsearchhelper() {
         Random rand = new Random();
+        LinkedQueue frontier = new LinkedQueue<>();
+        HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a set bc as the algorithms progresses through
+        Node<E> initial = new Node<E>(this.state, null); // initial state
+        frontier.enqueue(initial);
+
         if (frontier.isEmpty()) { // If frontier is empty with no goalNode
             return null; // Failure
         }
-        int limiter = rand.nextInt(75000)+37500;
+        int limiter = rand.nextInt(50000)+400000;
         while (!frontier.isEmpty()) { // While frontier is not empty
-            if(this.reach.size() >= limiter){
-                return null;
-            }
             Node<E> currentNode = (Node<E>) frontier.dequeue(); // retrieve the first node
             if (this.isGoal(currentNode.state)) { // If this node is a goal
                 return currentNode; // retrieve the path
             }
-            for (Node<E> child : expand(currentNode)) { // Else, generate the children from this node
-                DuckState childState = child.state; // retrieve its state
-                if (!reach.containsKey(childState) || child.getPathCost() < reach.get(childState).getPathCost()) {
-                    // If the reach doesnt have the childs state or its path cost less than the reaches childstate path
-                    reach.put(childState, child); // Adds the child and its state to the hashmap
-                    frontier.enqueue(child); // Adds the child to the frontier
+            if(reach.size()>limiter){
+                return null;
+            }
+            if(!shouldPrune(currentNode.state)){ // if the search should not prune the state then
+                for (Node<E> child : expand(currentNode)) { // generate the children from this node
+                    DuckState childState = child.state; // retrieve teh states of those children
+                    if (!reach.containsKey(childState) || child.getPathCost() < reach.get(childState).getPathCost()) {
+                        // If the reach doesnt have the childs state or its path cost less than the reaches childstate path
+                        reach.put(childState, child); // Adds the child and its state to the hashmap
+                        frontier.enqueue(child); // Adds the child to the frontier
+                    }
                 }
             }
         }
@@ -421,29 +491,32 @@ public class Node<E> implements Comparable<Node<E>> {
 
     private Node<E> aStarSearchHelper() {
         Random rand = new Random();
-        int limiter = rand.nextInt(1000000)+999999;
-        PriorityQueue<Node<E>> frontier = new PriorityQueue<>(); // frontier
+        int limiter = rand.nextInt(1500000)+2999999;
+        PriorityQueue<Node<E>> frontier = new PriorityQueue<>(); 
+        HashMap<DuckState, Node<E>> reach = new HashMap<>(); // a set bc as the algorithms progresses through
         Node<E> intialNode = new Node<>(this.state, null); // initialize the new initial node
+        
         intialNode.setHeursticCost(this.heuristicFunction(this.state)); // set the intial node's heuristic cost
         intialNode.setTotalCost(intialNode.getHeursticCost() + intialNode.getPathCost()); // f(x) = h(x) + g(x)
         frontier.add(intialNode); // add that initial node to the frontier to begin
     
         while (!frontier.isEmpty()) { // While frontier is not empty
-            if(this.reach.size() >= limiter){
-                return null;
-            }
             Node<E> currentNode = (Node<E>) frontier.poll(); // retrieve the best f(x) node
             if (this.isGoal(currentNode.state)) { // if the node is a goal
                 return currentNode; // retrieve its path
             }
-            for (Node<E> child : expand(currentNode)) { // else, generate all the children from possible actions of that current node
-                DuckState childState = child.state; // retrieve the node's state
-                if (!reach.containsKey(childState) || child.compareTo(reach.get(childState)) < 0) { // if the node's state has been reached before
-                    reach.put(childState, child); // if has and its f(x) is better than the one we reached, then replace the node in reach.
-                    child.setHeursticCost(this.heuristicFunction(childState)); // all while setting the child's heuristcc
-                    child.setTotalCost(child.getHeursticCost() + child.getPathCost()); // f(x) = h(x) + g(x)
-                    if((child.getTotalCost() - child.parent.getTotalCost()) <= 2) 
+            if(reach.size() >= limiter){
+                return null;
+            }
+            if(!shouldPrune(currentNode.state)){ // if the search should prune this state 
+                for (Node<E> child : expand(currentNode)) { // then generate all the children from possible actions of that current node
+                    DuckState childState = child.state; // retrieve the node's state
+                    if (!reach.containsKey(childState) || child.compareTo(reach.get(childState)) < 0) { // if the node's state has been reached before
+                        reach.put(childState, child); // if has and its f(x) is better than the one we reached, then replace the node in reach.
+                        child.setHeursticCost(this.heuristicFunction(childState)); // all while setting the child's heuristcc
+                        child.setTotalCost(child.getHeursticCost() + child.getPathCost()); // f(x) = h(x) + g(x)
                         frontier.add(child);
+                    }
                 }
             }
         }
@@ -457,15 +530,22 @@ public class Node<E> implements Comparable<Node<E>> {
             Duck duck = state.getDuck(i);
             int distanceToFlag = (state.getNumofPos()-1)-duck.getPosition();
             int distanceToGoal = duck.getPosition();
+
+
+
             if (duck.hasCap()) { // if duck has capture the flag
                 if (duck.hasFlag()) { // count his steps to reach back to his goalstate
-                    estimatedStateMoveCost += distanceToGoal; // 0 is the initial/beginning of the grid
-                }
+                    Duck nearestDuck = findNearestDuck(state, duck);
+                    if(nearestDuck != null){
+                        int energyTransferDistance = Math.abs(duck.getPosition() - nearestDuck.getPosition());
+                        int energyRequired = energyTransferDistance - duck.getEnergy();
+                        if(energyRequired > 0 && nearestDuck.getEnergy() >= energyRequired){
+                        estimatedStateMoveCost += energyTransferDistance; // 0 is the initial/beginning of the grid
+                        }
+                    }
+                    }
                 estimatedStateMoveCost += distanceToFlag+distanceToGoal;
             } 
-            if(duck.getEnergy() < state.getNumofPos()-1 && duck.getPosition() > 1){
-                estimatedStateMoveCost += (duck.getPosition() - 1) * (duck.getEnergy()-2); // penalty marker
-            }
             else {
                 estimatedStateMoveCost += distanceToGoal; // 0 is the initial/beginning of the grid, so we'll
                 // subtract their position relative to the beginnning
@@ -473,6 +553,22 @@ public class Node<E> implements Comparable<Node<E>> {
         }
         return estimatedStateMoveCost; // return the sum of costs of individual moves away from the goal.
     }
+
+    private Duck findNearestDuck(DuckState state, Duck targetDuck){
+        Duck nearestDuck = null;
+        int minDistance = Integer.MAX_VALUE;
+        
+        for(Duck duck : state.getDucks()){
+            if(!duck.hasCap()){
+                int distance = targetDuck.getPosition() - duck.getPosition();
+                if(distance < minDistance){
+                    minDistance = distance;
+                    nearestDuck = duck;
+                }
+        }
+    }
+    return nearestDuck;
+}
 
     private boolean isGoal(DuckState state) {
         DuckState goalState = new DuckState(this.state.getDuckCounter(), this.state.getNumofPos(),
